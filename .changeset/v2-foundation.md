@@ -10,6 +10,8 @@ v2.0.0 is a complete rewrite into a fast, deterministic, RFC 4180-correct CSV en
   `createCsvEncoder(options)` which returns a callable encoder with `row` and
   `stream` (an `AsyncIterable`). `toReadableStream` adapts a stream to a Web
   `ReadableStream`. The old `CsvPipe` class and its `generate` method are removed.
+- Platform entry points: `csv-pipe/browser` exports `downloadCsv`, and
+  `csv-pipe/node` exports `writeCsv`. The core entry stays platform-neutral.
 - Fully typed options (`CsvOptions<T>`) with no `any`. The old `CpConfig` shape
   is removed.
 - One `columns` option replaces the separate `columns` plus `headers`. It takes

@@ -2,7 +2,7 @@
 
 A small, fast, zero-dependency CSV encoder for TypeScript and JavaScript. It converts arrays of objects into RFC 4180-compliant CSV and runs in Node, browsers, Deno, Bun, and edge runtimes.
 
-> Status: 2.0.0 alpha. The API is `stringify` and `createCsvEncoder` (callable, with `row` and `stream`). Platform helpers for browser download and Node file writing are on the roadmap.
+> Status: 2.0.0 alpha. The core API is `stringify` and `createCsvEncoder` (callable, with `row` and `stream`). Platform helpers live in `csv-pipe/browser` (download) and `csv-pipe/node` (file writing).
 
 ## Why csv-pipe
 
@@ -94,12 +94,25 @@ const readable = Readable.from(toCsv.stream(users));
 
 ### Writing a file in Node
 
-```typescript
-import { writeFile } from 'node:fs/promises';
-import { stringify } from 'csv-pipe';
+`csv-pipe/node` streams the encoder straight to disk, so memory stays flat for large datasets.
 
-await writeFile('users.csv', stringify(users), 'utf8');
+```typescript
+import { writeCsv } from 'csv-pipe/node';
+
+await writeCsv('users.csv', users, { columns: ['name', 'email'] });
 ```
+
+### Downloading in the browser
+
+`csv-pipe/browser` encodes and triggers a download, then revokes the object URL.
+
+```typescript
+import { downloadCsv } from 'csv-pipe/browser';
+
+downloadCsv(users, { filename: 'users.csv' });
+```
+
+The core entry (`csv-pipe`) stays platform-neutral, so it never pulls in `fs` or the DOM and runs anywhere.
 
 ## Options
 
