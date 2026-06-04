@@ -37,3 +37,5 @@ v2.0.0 is a complete rewrite into a fast, deterministic, RFC 4180-correct CSV en
 
 - Dual ESM and CJS build with type declarations (tsup), TypeScript 6, Vitest with
   coverage, ESLint, and Prettier. Zero runtime dependencies.
+- GitHub Actions CI runs typecheck, lint, format check, tests, and build across
+  Node 18, 20, and 22.
