@@ -52,4 +52,30 @@ describe('createCsvEncoder', () => {
     for await (const chunk of toCsv.stream(source())) streamed += chunk;
     expect(streamed).toBe(toCsv(rows));
   });
+
+  it('streams incrementally when columns are declared', async () => {
+    const toCsv = createCsvEncoder<Row>({ columns: ['name', 'age'] });
+    let streamed = '';
+    for await (const chunk of toCsv.stream(rows)) streamed += chunk;
+    expect(streamed).toBe(toCsv(rows));
+  });
+
+  it('emits the header before pulling any record with declared columns', async () => {
+    const toCsv = createCsvEncoder<Row>({ columns: ['name', 'age'] });
+    let pulled = 0;
+    async function* source(): AsyncGenerator<Row> {
+      for (const record of rows) {
+        pulled += 1;
+        yield record;
+      }
+    }
+
+    const iterator = toCsv.stream(source())[Symbol.asyncIterator]();
+    const first = await iterator.next();
+
+    expect(first.value).toBe('name,age');
+    expect(pulled).toBe(0);
+
+    await iterator.return?.(undefined);
+  });
 });

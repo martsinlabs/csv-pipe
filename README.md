@@ -68,14 +68,28 @@ toCsv.row(users[0]); // a single line, no header
 
 ### Streaming
 
-`stream` yields string chunks and accepts a sync or async iterable, which suits large datasets and backpressure-aware writers.
+`stream` yields string chunks and accepts a sync or async iterable, which suits large datasets and backpressure-aware writers. When `columns` are declared it is fully incremental: records are read and emitted one at a time. Without declared columns the input is buffered first, since the header needs every key.
 
 ```typescript
-const toCsv = createCsvEncoder<User>();
+const toCsv = createCsvEncoder<User>({ columns: ['name', 'email'] });
 
 for await (const chunk of toCsv.stream(users)) {
   // write each chunk to a file, socket, or HTTP response
 }
+```
+
+Adapt the stream to the primitive your runtime expects:
+
+```typescript
+import { toReadableStream } from 'csv-pipe';
+
+// Web, Deno, Bun, edge, or Node 18+: a Web ReadableStream.
+const body = toReadableStream(toCsv.stream(users));
+return new Response(body, { headers: { 'content-type': 'text/csv' } });
+
+// Node: a classic Readable, using the built-in helper.
+import { Readable } from 'node:stream';
+const readable = Readable.from(toCsv.stream(users));
 ```
 
 ### Writing a file in Node

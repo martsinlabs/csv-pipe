@@ -6,9 +6,10 @@ v2.0.0 is a complete rewrite into a fast, deterministic, RFC 4180-correct CSV en
 
 **Breaking changes**
 
-- New API. Two functions: `stringify(data, options)` for the common case, and
+- New API. `stringify(data, options)` for the common case, and
   `createCsvEncoder(options)` which returns a callable encoder with `row` and
-  `stream`. The old `CsvPipe` class and its `generate` method are removed.
+  `stream` (an `AsyncIterable`). `toReadableStream` adapts a stream to a Web
+  `ReadableStream`. The old `CsvPipe` class and its `generate` method are removed.
 - Fully typed options (`CsvOptions<T>`) with no `any`. The old `CpConfig` shape
   is removed.
 - One `columns` option replaces the separate `columns` plus `headers`. It takes

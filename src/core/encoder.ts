@@ -1,4 +1,5 @@
-import type { CsvColumns, CsvEncoder, CsvOptions, CsvRecord } from '../types';
+import type { CsvEncoder, CsvOptions, CsvRecord } from '../types';
+import type { ResolvedColumn } from './columns';
 import { resolveColumns } from './columns';
 import type { ResolvedCsvOptions } from './options';
 import { resolveOptions } from './options';
@@ -6,31 +7,27 @@ import { encodeHeader, encodeRow } from './record';
 
 const BOM = '﻿';
 
+/**
+ * Bridge a user value to the internal record shape. `T extends object` lets
+ * callers pass interfaces (which lack an index signature), while the encoder
+ * works with a plain keyed record at runtime.
+ */
+function asRecord(value: unknown): CsvRecord {
+  return value as CsvRecord;
+}
+
 /** Yield the header line (when shown) followed by one line per record. */
-function* generateLines<T>(
+function* generateLines(
   records: readonly CsvRecord[],
-  declaredColumns: CsvColumns<T> | undefined,
+  columns: readonly ResolvedColumn[],
   options: ResolvedCsvOptions
 ): Generator<string> {
-  const columns = resolveColumns(records, declaredColumns);
-
   if (options.showHeaders && columns.length > 0) {
     yield encodeHeader(columns, options);
   }
-
   for (const record of records) {
     yield encodeRow(record, columns, options);
   }
-}
-
-/**
- * Bridge user data to the internal record shape. `T extends object` lets callers
- * pass interfaces (which lack an index signature), while the encoder works with
- * a plain keyed record at runtime.
- */
-function toRecords<T>(data: Iterable<T>): readonly CsvRecord[] {
-  const list: readonly unknown[] = Array.isArray(data) ? data : [...data];
-  return list as readonly CsvRecord[];
 }
 
 /**
@@ -45,30 +42,52 @@ export function createCsvEncoder<T extends object = CsvRecord>(
   const declaredColumns = options.columns;
 
   const stringify = (data: Iterable<T>): string => {
-    const lines = [
-      ...generateLines(toRecords(data), declaredColumns, resolved)
-    ];
-    const body = lines.join(resolved.newline);
+    const records: CsvRecord[] = [];
+    for (const record of data) records.push(asRecord(record));
+    const columns = resolveColumns(records, declaredColumns);
+    const body = [...generateLines(records, columns, resolved)].join(
+      resolved.newline
+    );
     return resolved.bom ? `${BOM}${body}` : body;
   };
 
   const row = (record: T): string => {
-    const records = toRecords([record]);
-    const columns = resolveColumns(records, declaredColumns);
-    return encodeRow(records[0]!, columns, resolved);
+    const single = asRecord(record);
+    const columns = resolveColumns([single], declaredColumns);
+    return encodeRow(single, columns, resolved);
   };
+
+  // Yield unframed lines. With declared columns this is fully incremental: the
+  // header is known up front, so records are read and emitted one at a time.
+  // Without declared columns the key union is unknown until every record is
+  // seen, so the input is buffered first.
+  async function* streamLines(
+    data: Iterable<T> | AsyncIterable<T>
+  ): AsyncGenerator<string> {
+    if (declaredColumns) {
+      const columns = resolveColumns([], declaredColumns);
+      if (resolved.showHeaders && columns.length > 0) {
+        yield encodeHeader(columns, resolved);
+      }
+      for await (const record of data) {
+        yield encodeRow(asRecord(record), columns, resolved);
+      }
+      return;
+    }
+
+    const records: CsvRecord[] = [];
+    for await (const record of data) records.push(asRecord(record));
+    const columns = resolveColumns(records, undefined);
+    yield* generateLines(records, columns, resolved);
+  }
 
   async function* stream(
     data: Iterable<T> | AsyncIterable<T>
   ): AsyncIterable<string> {
-    const collected: T[] = [];
-    for await (const record of data) collected.push(record);
-    const records = toRecords(collected);
-
     if (resolved.bom) yield BOM;
 
     let isFirst = true;
-    for (const line of generateLines(records, declaredColumns, resolved)) {
+    for await (const line of streamLines(data)) {
       yield isFirst ? line : `${resolved.newline}${line}`;
       isFirst = false;
     }

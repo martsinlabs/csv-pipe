@@ -1,5 +1,6 @@
 export { createCsvEncoder } from './core/encoder';
 export { stringify } from './encode/stringify';
+export { toReadableStream } from './stream';
 
 export { CsvPipeError } from './errors';
 
