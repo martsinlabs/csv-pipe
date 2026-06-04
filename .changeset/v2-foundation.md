@@ -32,6 +32,9 @@ v2.0.0 is a complete rewrite into a fast, deterministic, RFC 4180-correct CSV en
 - No empty header row with the default configuration.
 - Deterministic core with no import-time state (the filename timestamp bug is gone).
 - Consistent handling of `-Infinity` and `NaN`.
+- An unsupported cell value (object, function, symbol, `Date`) throws a
+  `CsvPipeError` naming the row and column, instead of silently emitting
+  `[object Object]`.
 
 **Tooling**
 

@@ -140,6 +140,7 @@ All options are optional.
 - `null`, `undefined`, and `NaN` render as an empty string by default.
 - An absent key and an explicit `undefined` are treated identically.
 - An array value is joined into a single cell using `arraySeparator`.
+- A value that cannot be a cell (an object, function, symbol, or `Date`) throws a `CsvPipeError` naming the row and column. Format such values before encoding.
 
 ## TypeScript
 

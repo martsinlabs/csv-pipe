@@ -1,3 +1,4 @@
+import { UnsupportedValueError } from '../errors';
 import type { CsvCell, CsvPrimitive } from '../types';
 import type { ResolvedCsvOptions } from './options';
 
@@ -25,7 +26,7 @@ function coercePrimitive(
       if (value === -Infinity) return `-${options.infinityText}`;
       return String(value);
     default:
-      return String(value);
+      throw new UnsupportedValueError(value);
   }
 }
 
@@ -54,8 +55,8 @@ export function needsQuoting(
 }
 
 /**
- * Encode one cell into a CSV field, quoting and escaping per RFC 4180:
- * when quoted, every embedded quote character is doubled.
+ * Encode one cell into a CSV field, quoting and escaping per RFC 4180: when
+ * quoted, every embedded quote character is doubled.
  */
 export function encodeField(
   value: CsvCell,

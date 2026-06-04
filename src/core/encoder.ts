@@ -25,8 +25,8 @@ function* generateLines(
   if (options.showHeaders && columns.length > 0) {
     yield encodeHeader(columns, options);
   }
-  for (const record of records) {
-    yield encodeRow(record, columns, options);
+  for (let index = 0; index < records.length; index += 1) {
+    yield encodeRow(records[index]!, columns, options, index);
   }
 }
 
@@ -54,7 +54,7 @@ export function createCsvEncoder<T extends object = CsvRecord>(
   const row = (record: T): string => {
     const single = asRecord(record);
     const columns = resolveColumns([single], declaredColumns);
-    return encodeRow(single, columns, resolved);
+    return encodeRow(single, columns, resolved, 0);
   };
 
   // Yield unframed lines. With declared columns this is fully incremental: the
@@ -69,8 +69,10 @@ export function createCsvEncoder<T extends object = CsvRecord>(
       if (resolved.showHeaders && columns.length > 0) {
         yield encodeHeader(columns, resolved);
       }
+      let index = 0;
       for await (const record of data) {
-        yield encodeRow(asRecord(record), columns, resolved);
+        yield encodeRow(asRecord(record), columns, resolved, index);
+        index += 1;
       }
       return;
     }

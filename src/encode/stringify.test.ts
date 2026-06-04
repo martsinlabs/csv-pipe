@@ -1,5 +1,7 @@
 import Papa from 'papaparse';
 import { describe, expect, it } from 'vitest';
+import { CsvPipeError } from '../errors';
+import type { CsvRecord } from '../types';
 import { stringify } from './stringify';
 
 describe('stringify', () => {
@@ -42,5 +44,37 @@ describe('stringify', () => {
       header: true
     }).data;
     expect(parsed).toEqual([{ name: 'Alex, Jr.', quote: 'say "hi"', n: '29' }]);
+  });
+});
+
+describe('stringify with unsupported cell values', () => {
+  const as = (records: unknown[]): CsvRecord[] => records as CsvRecord[];
+
+  it('throws a located CsvPipeError for an object cell', () => {
+    const data = as([{ name: 'ok' }, { name: {} }]);
+    expect(() => stringify(data)).toThrow(CsvPipeError);
+    expect(() => stringify(data)).toThrow('row 1, column "name"');
+  });
+
+  it('names a function value', () => {
+    const data = as([{ run: () => 1 }]);
+    expect(() => stringify(data)).toThrow('Cannot encode a function');
+  });
+
+  it('names a symbol value', () => {
+    const data = as([{ id: Symbol('x') }]);
+    expect(() => stringify(data)).toThrow('Cannot encode a symbol');
+  });
+
+  it('points at a Date value with a hint', () => {
+    const data = as([{ at: new Date() }]);
+    expect(() => stringify(data)).toThrow('Cannot encode a Date');
+  });
+
+  it('reports the offending item inside an array cell', () => {
+    const data = as([{ tags: [1, () => 2] }]);
+    expect(() => stringify(data)).toThrow(
+      'Cannot encode a function at row 0, column "tags"'
+    );
   });
 });

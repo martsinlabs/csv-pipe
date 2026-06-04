@@ -1,3 +1,4 @@
+import { UnsupportedValueError, unsupportedCellError } from '../errors';
 import type { CsvRecord } from '../types';
 import type { ResolvedColumn } from './columns';
 import { encodeField } from './encode';
@@ -13,13 +14,28 @@ export function encodeHeader(
     .join(options.separator);
 }
 
-/** Encode one record into a CSV line by reading each resolved column's key. */
+/**
+ * Encode one record into a CSV line by reading each resolved column's key. If a
+ * value cannot be encoded, the error names the offending row and column.
+ */
 export function encodeRow(
   record: CsvRecord,
   columns: readonly ResolvedColumn[],
-  options: ResolvedCsvOptions
+  options: ResolvedCsvOptions,
+  rowIndex: number
 ): string {
-  return columns
-    .map((column) => encodeField(record[column.key], options))
-    .join(options.separator);
+  let key = '';
+  try {
+    const cells: string[] = [];
+    for (const column of columns) {
+      key = column.key;
+      cells.push(encodeField(record[column.key], options));
+    }
+    return cells.join(options.separator);
+  } catch (cause) {
+    if (cause instanceof UnsupportedValueError) {
+      throw unsupportedCellError(cause.value, key, rowIndex);
+    }
+    throw cause;
+  }
 }
