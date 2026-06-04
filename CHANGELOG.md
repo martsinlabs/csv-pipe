@@ -61,3 +61,5 @@ A complete rewrite into a fast, deterministic, RFC 4180-compliant CSV encoder.
   loop, making it the fastest of the benchmarked encoders on every dataset.
 - CI verifies the published package with publint and checks type resolution
   across module modes with are-the-types-wrong.
+- Property-based round-trip tests (fast-check), a bundle-size budget
+  (size-limit), and live coverage and bundle-size badges.

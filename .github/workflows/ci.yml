@@ -46,3 +46,6 @@ jobs:
 
       - name: Check type resolution
         run: npx attw --pack .
+
+      - name: Check bundle size
+        run: npx size-limit

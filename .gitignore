@@ -17,9 +17,10 @@ yarn-error.log*
 .cache
 *.tsbuildinfo
 
-# Benchmark output
+# Benchmark and badge output
 bench-results.json
 bench-badge.json
+size.json
 public
 
 # Environment

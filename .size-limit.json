@@ -1,0 +1,19 @@
+[
+  {
+    "name": "stringify (tree-shaken)",
+    "path": "dist/index.js",
+    "import": "{ stringify }",
+    "limit": "2 kB"
+  },
+  {
+    "name": "createCsvEncoder + toReadableStream",
+    "path": "dist/index.js",
+    "import": "{ createCsvEncoder, toReadableStream }",
+    "limit": "2 kB"
+  },
+  {
+    "name": "full entry",
+    "path": "dist/index.js",
+    "limit": "2 kB"
+  }
+]
