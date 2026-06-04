@@ -1,35 +1,25 @@
-import type { CsvInput, CsvRecord } from '../types';
+import type { CsvRecord } from '../types';
+import type { ResolvedColumn } from './columns';
 import { encodeField } from './encode';
 import type { ResolvedCsvOptions } from './options';
 
-/**
- * Determine the ordered column keys for a dataset. Explicit `columns` win;
- * otherwise the stable union of every record's keys (first-seen order) is used,
- * so reordered or partial records never shift columns.
- */
-export function resolveColumns(
-  input: CsvInput,
-  options: ResolvedCsvOptions
-): readonly string[] {
-  if (options.columns) return options.columns;
-
-  const keys = new Set<string>();
-  for (const record of input) {
-    for (const key of Object.keys(record)) keys.add(key);
-  }
-  return [...keys];
-}
-
-/** Encode one record into a CSV line by pulling values per resolved column. */
-export function encodeRecord(
-  record: CsvRecord,
-  columns: readonly string[],
+/** Encode the header line from the resolved column labels. */
+export function encodeHeader(
+  columns: readonly ResolvedColumn[],
   options: ResolvedCsvOptions
 ): string {
-  const cells: string[] = [];
-  for (const key of columns) {
-    // An absent key and an explicit `undefined` are treated identically.
-    cells.push(encodeField(record[key], options));
-  }
-  return cells.join(options.separator);
+  return columns
+    .map((column) => encodeField(column.header, options))
+    .join(options.separator);
+}
+
+/** Encode one record into a CSV line by reading each resolved column's key. */
+export function encodeRow(
+  record: CsvRecord,
+  columns: readonly ResolvedColumn[],
+  options: ResolvedCsvOptions
+): string {
+  return columns
+    .map((column) => encodeField(record[column.key], options))
+    .join(options.separator);
 }

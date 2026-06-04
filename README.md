@@ -2,7 +2,7 @@
 
 A small, fast, zero-dependency CSV encoder for TypeScript and JavaScript. It converts arrays of objects into RFC 4180-compliant CSV and runs in Node, browsers, Deno, Bun, and edge runtimes.
 
-> Status: 2.0.0 alpha. The public API is `stringify`. A prepared encoder, streaming output, and platform helpers are on the roadmap.
+> Status: 2.0.0 alpha. The API is `stringify` and `createCsvEncoder` (callable, with `row` and `stream`). Platform helpers for browser download and Node file writing are on the roadmap.
 
 ## Why csv-pipe
 
@@ -35,19 +35,48 @@ const csv = stringify(users);
 
 By default the header row is derived from the record keys, and each field is quoted only when it contains the separator, a quote, a carriage return, or a line feed.
 
-### Choosing and labelling columns
+### Choosing, ordering, and labelling columns
+
+The `columns` option does all three. Pass an array of keys, or a map of key to header label. Keys are checked against your data type, so a typo is a compile error.
 
 ```typescript
-const csv = stringify(users, {
-  columns: ['name', 'email'],
-  headers: ['Full name', 'Email address']
-});
+// Array: select and order; the key is also the header.
+stringify(users, { columns: ['name', 'email'] });
+// name,email
+// Alex Johnson,alex.johnson@example.com
+
+// Map: select, order, and label.
+stringify(users, { columns: { name: 'Full name', email: 'Email address' } });
 // Full name,Email address
 // Alex Johnson,alex.johnson@example.com
-// Carlos Herrera,carlos.h24@example.com
 ```
 
-`columns` selects which keys to include and in what order. `headers` provides the labels for the header row, aligned to `columns` by position. When `columns` is omitted, the columns are the stable union of every record's keys in first-seen order, so records with reordered or missing keys never shift columns.
+When `columns` is omitted, the columns are the stable union of every record's keys in first-seen order, so records with reordered or missing keys never shift columns.
+
+### Reusing an encoder
+
+`createCsvEncoder` resolves options once and returns a callable encoder with `row` and `stream` methods. Use it when you encode many datasets with the same configuration.
+
+```typescript
+import { createCsvEncoder } from 'csv-pipe';
+
+const toCsv = createCsvEncoder<User>({ columns: ['name', 'email'] });
+
+toCsv(users); // full document as a string
+toCsv.row(users[0]); // a single line, no header
+```
+
+### Streaming
+
+`stream` yields string chunks and accepts a sync or async iterable, which suits large datasets and backpressure-aware writers.
+
+```typescript
+const toCsv = createCsvEncoder<User>();
+
+for await (const chunk of toCsv.stream(users)) {
+  // write each chunk to a file, socket, or HTTP response
+}
+```
 
 ### Writing a file in Node
 
@@ -62,22 +91,21 @@ await writeFile('users.csv', stringify(users), 'utf8');
 
 All options are optional.
 
-| Option           | Type                              | Default                            | Description                                                                |
-| ---------------- | --------------------------------- | ---------------------------------- | -------------------------------------------------------------------------- |
-| `separator`      | `string`                          | `,`                                | Field separator.                                                           |
-| `quote`          | `string`                          | `"`                                | Quote character used when a field must be quoted.                          |
-| `newline`        | `string`                          | `\r\n`                             | Line terminator between records.                                           |
-| `quoting`        | `'minimal' \| 'all'`              | `minimal`                          | `minimal` quotes only when required by RFC 4180; `all` quotes every field. |
-| `showHeaders`    | `boolean`                         | `true`                             | Whether to emit a header row.                                              |
-| `columns`        | `string[]`                        | union of record keys               | Keys to include, in order.                                                 |
-| `headers`        | `string[]`                        | the column keys                    | Header labels, aligned to `columns` by position.                           |
-| `nullText`       | `string`                          | `""`                               | Rendering of `null`.                                                       |
-| `undefinedText`  | `string`                          | `""`                               | Rendering of `undefined`.                                                  |
-| `nanText`        | `string`                          | `""`                               | Rendering of `NaN`.                                                        |
-| `infinityText`   | `string`                          | `Infinity`                         | Rendering of `Infinity`; `-Infinity` renders as `-` followed by this.      |
-| `booleans`       | `{ true: string; false: string }` | `{ true: 'true', false: 'false' }` | Rendering of boolean values.                                               |
-| `arraySeparator` | `string`                          | `, `                               | Separator used to join an array within a single cell.                      |
-| `bom`            | `boolean`                         | `false`                            | Prepend a UTF-8 byte-order mark, which helps some spreadsheet apps.        |
+| Option           | Type                                       | Default                            | Description                                                                |
+| ---------------- | ------------------------------------------ | ---------------------------------- | -------------------------------------------------------------------------- |
+| `separator`      | `string`                                   | `,`                                | Field separator.                                                           |
+| `quote`          | `string`                                   | `"`                                | Quote character used when a field must be quoted.                          |
+| `newline`        | `string`                                   | `\r\n`                             | Line terminator between records.                                           |
+| `quoting`        | `'minimal' \| 'all'`                       | `minimal`                          | `minimal` quotes only when required by RFC 4180; `all` quotes every field. |
+| `showHeaders`    | `boolean`                                  | `true`                             | Whether to emit a header row.                                              |
+| `columns`        | `(keyof T)[]` or `Record<keyof T, string>` | union of record keys               | Columns to emit. Array of keys, or a map of key to header label.           |
+| `nullText`       | `string`                                   | `""`                               | Rendering of `null`.                                                       |
+| `undefinedText`  | `string`                                   | `""`                               | Rendering of `undefined`.                                                  |
+| `nanText`        | `string`                                   | `""`                               | Rendering of `NaN`.                                                        |
+| `infinityText`   | `string`                                   | `Infinity`                         | Rendering of `Infinity`; `-Infinity` renders as `-` followed by this.      |
+| `booleans`       | `{ true: string; false: string }`          | `{ true: 'true', false: 'false' }` | Rendering of boolean values.                                               |
+| `arraySeparator` | `string`                                   | `, `                               | Separator used to join an array within a single cell.                      |
+| `bom`            | `boolean`                                  | `false`                            | Prepend a UTF-8 byte-order mark, which helps some spreadsheet apps.        |
 
 ## Behavior notes
 
@@ -92,7 +120,7 @@ All options are optional.
 import type { CsvOptions, CsvRecord } from 'csv-pipe';
 ```
 
-Exported types: `CsvOptions`, `CsvRecord`, `CsvInput`, `CsvCell`, `CsvPrimitive`, `QuotingMode`, `BooleanStyle`, and the `CsvPipeError` class.
+Exported types: `CsvOptions`, `CsvColumns`, `CsvEncoder`, `CsvRecord`, `CsvInput`, `CsvCell`, `CsvPrimitive`, `QuotingMode`, `BooleanStyle`, and the `CsvPipeError` class.
 
 ## License
 

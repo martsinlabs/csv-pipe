@@ -1,19 +1,17 @@
-import type { BooleanStyle, CsvOptions, QuotingMode } from '../types';
+import type { BooleanStyle, CsvFormatOptions, QuotingMode } from '../types';
 import { DEFAULT_OPTIONS } from './constants';
 
 /**
- * Fully-resolved options: the same shape as {@link CsvOptions} but with every
- * field present. This is the only options type the core encoder ever sees,
- * which keeps the encoding path branch-free of "is this set?" checks.
+ * Fully-resolved formatting options: the same fields as {@link CsvFormatOptions}
+ * but with every value present. This is the only options shape the core encoder
+ * sees, which keeps the encoding path free of "is this set?" checks.
  */
 export interface ResolvedCsvOptions {
+  readonly showHeaders: boolean;
   readonly separator: string;
   readonly quote: string;
   readonly newline: string;
   readonly quoting: QuotingMode;
-  readonly showHeaders: boolean;
-  readonly columns: readonly string[] | undefined;
-  readonly headers: readonly string[] | undefined;
   readonly nullText: string;
   readonly undefinedText: string;
   readonly nanText: string;
@@ -24,15 +22,15 @@ export interface ResolvedCsvOptions {
 }
 
 /** Merge user options over the defaults into a fully-resolved option set. */
-export function resolveOptions(options: CsvOptions = {}): ResolvedCsvOptions {
+export function resolveOptions(
+  options: CsvFormatOptions = {}
+): ResolvedCsvOptions {
   return {
+    showHeaders: options.showHeaders ?? DEFAULT_OPTIONS.showHeaders,
     separator: options.separator ?? DEFAULT_OPTIONS.separator,
     quote: options.quote ?? DEFAULT_OPTIONS.quote,
     newline: options.newline ?? DEFAULT_OPTIONS.newline,
     quoting: options.quoting ?? DEFAULT_OPTIONS.quoting,
-    showHeaders: options.showHeaders ?? DEFAULT_OPTIONS.showHeaders,
-    columns: options.columns ?? DEFAULT_OPTIONS.columns,
-    headers: options.headers ?? DEFAULT_OPTIONS.headers,
     nullText: options.nullText ?? DEFAULT_OPTIONS.nullText,
     undefinedText: options.undefinedText ?? DEFAULT_OPTIONS.undefinedText,
     nanText: options.nanText ?? DEFAULT_OPTIONS.nanText,

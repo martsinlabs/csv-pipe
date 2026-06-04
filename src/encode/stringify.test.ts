@@ -16,12 +16,16 @@ describe('stringify', () => {
     expect(csv).toBe('a,b\r\n1,2\r\n4,3\r\n5,');
   });
 
-  it('uses explicit header labels when provided', () => {
-    const csv = stringify([{ name: 'Alex' }], {
-      columns: ['name'],
-      headers: ['Full Name']
+  it('selects and orders columns from an array', () => {
+    const csv = stringify([{ a: 1, b: 2, c: 3 }], { columns: ['c', 'a'] });
+    expect(csv).toBe('c,a\r\n3,1');
+  });
+
+  it('selects, orders and labels columns from a map', () => {
+    const csv = stringify([{ name: 'Alex', age: 29 }], {
+      columns: { age: 'Age', name: 'Full name' }
     });
-    expect(csv).toBe('Full Name\r\nAlex');
+    expect(csv).toBe('Age,Full name\r\n29,Alex');
   });
 
   it('omits the header row when showHeaders is false', () => {

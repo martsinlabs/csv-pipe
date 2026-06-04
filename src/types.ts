@@ -13,7 +13,7 @@ export type CsvCell = CsvPrimitive | readonly CsvPrimitive[];
 /** One record (row) keyed by column name. */
 export type CsvRecord = Record<string, CsvCell>;
 
-/** The input passed to the encoder: an ordered list of records. */
+/** A list of records, the usual input to the encoder. */
 export type CsvInput = readonly CsvRecord[];
 
 /**
@@ -29,8 +29,23 @@ export interface BooleanStyle {
   readonly false: string;
 }
 
-/** User-facing encoder options. Every field is optional and falls back to a default. */
-export interface CsvOptions {
+/**
+ * Column selection for a record type `T`.
+ *
+ * - An array of keys selects and orders columns; each key is also its header.
+ * - A map of key to label selects and orders columns (by insertion order) and
+ *   sets the header label for each.
+ *
+ * Keys are constrained to `keyof T`, so a typo is a compile error.
+ */
+export type CsvColumns<T> =
+  | readonly (keyof T & string)[]
+  | Partial<Record<keyof T & string, string>>;
+
+/** Formatting options, independent of the record shape. */
+export interface CsvFormatOptions {
+  /** Whether to emit a header row. Default `true`. */
+  showHeaders?: boolean;
   /** Field separator. Default `,`. */
   separator?: string;
   /** Quote character used when a field must be quoted. Default `"`. */
@@ -39,25 +54,13 @@ export interface CsvOptions {
   newline?: string;
   /** Quoting strategy. Default `minimal`. */
   quoting?: QuotingMode;
-  /** Whether to emit a header row. Default `true`. */
-  showHeaders?: boolean;
-  /**
-   * Explicit column keys, in order. When omitted the columns are the stable
-   * union of every record's keys, in first-seen order.
-   */
-  columns?: readonly string[];
-  /**
-   * Header labels to display. When omitted the column keys are used as labels.
-   * Mapped positionally onto the resolved columns.
-   */
-  headers?: readonly string[];
   /** Text for `null` values. Default `""`. */
   nullText?: string;
   /** Text for `undefined` values. Default `""`. */
   undefinedText?: string;
   /** Text for `NaN` values. Default `""`. */
   nanText?: string;
-  /** Text for `Infinity` (`-Infinity` is rendered as `-` + this). Default `Infinity`. */
+  /** Text for `Infinity`. `-Infinity` is rendered as `-` followed by this. Default `Infinity`. */
   infinityText?: string;
   /** Rendering of boolean values. Default `{ true: "true", false: "false" }`. */
   booleans?: BooleanStyle;
@@ -65,4 +68,28 @@ export interface CsvOptions {
   arraySeparator?: string;
   /** Prepend a UTF-8 byte-order mark. Default `false`. */
   bom?: boolean;
+}
+
+/** Full encoder options for a record type `T`. */
+export interface CsvOptions<
+  T extends object = CsvRecord
+> extends CsvFormatOptions {
+  /**
+   * Columns to emit. When omitted, the columns are the stable union of every
+   * record's keys, in first-seen order.
+   */
+  columns?: CsvColumns<T>;
+}
+
+/**
+ * A prepared encoder. Call it with data to get a CSV string, or use its methods
+ * for a single row or for streaming output.
+ */
+export interface CsvEncoder<T extends object = CsvRecord> {
+  /** Encode a list (or any iterable) of records into one CSV string. */
+  (data: Iterable<T>): string;
+  /** Encode a single record into one CSV line, without a header. */
+  row(record: T): string;
+  /** Encode records as an async stream of string chunks. */
+  stream(data: Iterable<T> | AsyncIterable<T>): AsyncIterable<string>;
 }
