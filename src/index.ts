@@ -9,6 +9,8 @@ export type {
   CsvCell,
   CsvColumns,
   CsvEncoder,
+  CsvFormatContext,
+  CsvFormatter,
   CsvInput,
   CsvOptions,
   CsvPrimitive,

@@ -1,15 +1,8 @@
 import { UnsupportedValueError } from '../errors';
-import type { CsvCell, CsvPrimitive } from '../types';
 import type { ResolvedCsvOptions } from './options';
 
-const CR = '\r';
-const LF = '\n';
-
 /** Render a single scalar to its string form per the resolved options. */
-function coercePrimitive(
-  value: CsvPrimitive,
-  options: ResolvedCsvOptions
-): string {
+function coercePrimitive(value: unknown, options: ResolvedCsvOptions): string {
   if (value === null) return options.nullText;
   if (value === undefined) return options.undefinedText;
 
@@ -26,32 +19,31 @@ function coercePrimitive(
       if (value === -Infinity) return `-${options.infinityText}`;
       return String(value);
     default:
+      if (value instanceof Date) return value.toISOString();
       throw new UnsupportedValueError(value);
   }
 }
 
 /** Render a cell (scalar or array) to its unquoted string form. */
-export function coerce(value: CsvCell, options: ResolvedCsvOptions): string {
+function coerce(value: unknown, options: ResolvedCsvOptions): string {
   if (Array.isArray(value)) {
     return value
-      .map((item: CsvPrimitive) => coercePrimitive(item, options))
+      .map((item) => coercePrimitive(item, options))
       .join(options.arraySeparator);
   }
-  return coercePrimitive(value as CsvPrimitive, options);
+  return coercePrimitive(value, options);
 }
 
-/** Whether a rendered field must be wrapped in quotes. */
-export function needsQuoting(
+/** Whether a value must be quoted under the configured strategy. */
+function mustQuote(
+  value: unknown,
   text: string,
   options: ResolvedCsvOptions
 ): boolean {
+  if (options.quoting === 'minimal') return options.quoteTest.test(text);
   if (options.quoting === 'all') return true;
-  return (
-    text.includes(options.quote) ||
-    text.includes(options.separator) ||
-    text.includes(CR) ||
-    text.includes(LF)
-  );
+  // non-numeric: quote everything except numbers and bigints.
+  return typeof value !== 'number' && typeof value !== 'bigint';
 }
 
 /**
@@ -59,11 +51,16 @@ export function needsQuoting(
  * quoted, every embedded quote character is doubled.
  */
 export function encodeField(
-  value: CsvCell,
+  value: unknown,
   options: ResolvedCsvOptions
 ): string {
-  const text = coerce(value, options);
-  if (!needsQuoting(text, options)) return text;
-  const escaped = text.split(options.quote).join(options.quote + options.quote);
+  // Fast path for the most common cell type, skipping the coerce indirection.
+  const text = typeof value === 'string' ? value : coerce(value, options);
+  if (!mustQuote(value, text, options)) return text;
+  // indexOf is cheaper than running the escape regex on fields with no quote.
+  const escaped =
+    text.indexOf(options.quote) === -1
+      ? text
+      : text.replace(options.quoteEscapeRegex, options.quoteEscaped);
   return `${options.quote}${escaped}${options.quote}`;
 }

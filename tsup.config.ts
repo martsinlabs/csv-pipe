@@ -7,7 +7,7 @@ export default defineConfig({
     node: 'src/platform/node.ts'
   },
   format: ['esm', 'cjs'],
-  dts: true,
+  dts: false,
   clean: true,
   sourcemap: true,
   treeshake: true,

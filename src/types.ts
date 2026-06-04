@@ -20,14 +20,35 @@ export type CsvInput = readonly CsvRecord[];
  * When to wrap a field in quotes.
  * - `minimal`: only when the value contains the separator, a quote, CR or LF (RFC 4180).
  * - `all`: always quote every field.
+ * - `non-numeric`: quote every field except numbers and bigints.
  */
-export type QuotingMode = 'minimal' | 'all';
+export type QuotingMode = 'minimal' | 'all' | 'non-numeric';
 
 /** How boolean values are rendered. */
 export interface BooleanStyle {
   readonly true: string;
   readonly false: string;
 }
+
+/** Where a value sits in the dataset, passed to a {@link CsvFormatter}. */
+export interface CsvFormatContext {
+  /** The column key being encoded. */
+  readonly column: string;
+  /** The record's zero-based position in the input. */
+  readonly rowIndex: number;
+}
+
+/**
+ * Convert a raw value into something encodable before it becomes a cell. Use it
+ * to render dates, format numbers, or serialize objects. The returned value is
+ * coerced and quoted like any cell, so return a string, number, boolean, bigint,
+ * null, undefined, or an array of those (return the value unchanged to pass it
+ * through).
+ */
+export type CsvFormatter = (
+  value: unknown,
+  context: CsvFormatContext
+) => unknown;
 
 /**
  * Column selection for a record type `T`.
@@ -52,8 +73,12 @@ export interface CsvFormatOptions {
   quote?: string;
   /** Line terminator between records. Default `\r\n` (RFC 4180). */
   newline?: string;
+  /** Append a trailing newline after the last record. Default `false`. */
+  finalNewline?: boolean;
   /** Quoting strategy. Default `minimal`. */
   quoting?: QuotingMode;
+  /** Transform each raw value into a cell before it is encoded. */
+  format?: CsvFormatter;
   /** Text for `null` values. Default `""`. */
   nullText?: string;
   /** Text for `undefined` values. Default `""`. */

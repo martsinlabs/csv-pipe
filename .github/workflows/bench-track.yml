@@ -1,0 +1,53 @@
+name: Benchmark tracking
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Measure throughput
+        run: node bench/track.mjs
+
+      - name: Publish to gh-pages and alert on regression
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: csv-pipe encoding throughput
+          tool: customBiggerIsBetter
+          output-file-path: bench-results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          gh-pages-branch: gh-pages
+          benchmark-data-dir-path: bench
+          alert-threshold: '150%'
+          comment-on-alert: true
+          fail-on-alert: true
+
+      - name: Stage throughput badge
+        run: |
+          mkdir -p public
+          cp bench-badge.json public/
+
+      - name: Publish throughput badge to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          keep_files: true

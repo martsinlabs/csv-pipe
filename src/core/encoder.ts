@@ -5,29 +5,32 @@ import type { ResolvedCsvOptions } from './options';
 import { resolveOptions } from './options';
 import { encodeHeader, encodeRow } from './record';
 
+// U+FEFF byte-order mark, prepended to the output when the `bom` option is set.
 const BOM = '﻿';
 
 /**
  * Bridge a user value to the internal record shape. `T extends object` lets
- * callers pass interfaces (which lack an index signature), while the encoder
+ * callers pass interfaces (which lack an index signature) while the encoder
  * works with a plain keyed record at runtime.
  */
 function asRecord(value: unknown): CsvRecord {
   return value as CsvRecord;
 }
 
-/** Yield the header line (when shown) followed by one line per record. */
-function* generateLines(
+/** Encode a buffered dataset into the header (when shown) plus one line per record. */
+function encodeLines(
   records: readonly CsvRecord[],
   columns: readonly ResolvedColumn[],
   options: ResolvedCsvOptions
-): Generator<string> {
+): string[] {
+  const lines: string[] = [];
   if (options.showHeaders && columns.length > 0) {
-    yield encodeHeader(columns, options);
+    lines.push(encodeHeader(columns, options));
   }
   for (let index = 0; index < records.length; index += 1) {
-    yield encodeRow(records[index]!, columns, options, index);
+    lines.push(encodeRow(records[index]!, columns, options, index));
   }
+  return lines;
 }
 
 /**
@@ -44,10 +47,12 @@ export function createCsvEncoder<T extends object = CsvRecord>(
   const stringify = (data: Iterable<T>): string => {
     const records: CsvRecord[] = [];
     for (const record of data) records.push(asRecord(record));
+
     const columns = resolveColumns(records, declaredColumns);
-    const body = [...generateLines(records, columns, resolved)].join(
-      resolved.newline
-    );
+    const lines = encodeLines(records, columns, resolved);
+
+    let body = lines.join(resolved.newline);
+    if (resolved.finalNewline && lines.length > 0) body += resolved.newline;
     return resolved.bom ? `${BOM}${body}` : body;
   };
 
@@ -57,9 +62,8 @@ export function createCsvEncoder<T extends object = CsvRecord>(
     return encodeRow(single, columns, resolved, 0);
   };
 
-  // Yield unframed lines. With declared columns this is fully incremental: the
-  // header is known up front, so records are read and emitted one at a time.
-  // Without declared columns the key union is unknown until every record is
+  // With declared columns the header is known up front, so records stream out
+  // one at a time. Without them the key union is unknown until every record is
   // seen, so the input is buffered first.
   async function* streamLines(
     data: Iterable<T> | AsyncIterable<T>
@@ -79,8 +83,7 @@ export function createCsvEncoder<T extends object = CsvRecord>(
 
     const records: CsvRecord[] = [];
     for await (const record of data) records.push(asRecord(record));
-    const columns = resolveColumns(records, undefined);
-    yield* generateLines(records, columns, resolved);
+    yield* encodeLines(records, resolveColumns(records, undefined), resolved);
   }
 
   async function* stream(
@@ -93,6 +96,7 @@ export function createCsvEncoder<T extends object = CsvRecord>(
       yield isFirst ? line : `${resolved.newline}${line}`;
       isFirst = false;
     }
+    if (resolved.finalNewline && !isFirst) yield resolved.newline;
   }
 
   return Object.assign(stringify, { row, stream }) as CsvEncoder<T>;

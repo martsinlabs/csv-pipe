@@ -1,28 +1,32 @@
 # csv-pipe
 
-A small, fast, zero-dependency CSV encoder for TypeScript and JavaScript. It converts arrays of objects into RFC 4180-compliant CSV and runs in Node, browsers, Deno, Bun, and edge runtimes.
+[![CI](https://img.shields.io/github/actions/workflow/status/martsinlabs/csv-pipe/ci.yml?branch=master&label=CI)](https://github.com/martsinlabs/csv-pipe/actions/workflows/ci.yml) [![encode throughput](https://img.shields.io/endpoint?url=https%3A%2F%2Fmartsinlabs.github.io%2Fcsv-pipe%2Fbench-badge.json)](https://martsinlabs.github.io/csv-pipe/bench/) [![benchmarks updated](https://img.shields.io/github/last-commit/martsinlabs/csv-pipe/gh-pages?label=benchmarks%20updated)](https://martsinlabs.github.io/csv-pipe/bench/)
 
-> Status: 2.0.0 alpha. The core API is `stringify` and `createCsvEncoder` (callable, with `row` and `stream`). Platform helpers live in `csv-pipe/browser` (download) and `csv-pipe/node` (file writing).
+A small, fast, zero-dependency CSV encoder for TypeScript and JavaScript. It turns arrays of objects into RFC 4180-compliant CSV and runs in Node, browsers, Deno, Bun, and edge runtimes.
 
-## Why csv-pipe
+## Highlights
 
-- Correct by default. Quotes and escaping follow RFC 4180, so values containing commas, quotes, or newlines round-trip through any standard parser.
-- Deterministic. The same input and options always produce the same output. There is no hidden state.
-- Typed. First-class TypeScript types, no `any` in the public surface.
-- Zero dependencies. Nothing is pulled into your bundle.
+- **Correct by default.** Quoting and escaping follow RFC 4180, so values with commas, quotes, or line breaks round-trip through any standard parser.
+- **Fast.** The fastest of the common encoders on every benchmark [below](#benchmarks).
+- **Typed.** Column names are checked against your data type, so a typo is a compile error. No `any` in the public surface.
+- **Universal.** One platform-neutral core for every runtime, with thin helpers for Node and the browser.
+- **Streaming.** Encode large datasets with flat memory.
+- **Zero dependencies.** Nothing is added to your bundle.
 
-## Installation
+## Install
 
 ```
 npm install csv-pipe
 ```
 
-## Usage
+## Quick start
 
-```typescript
+```ts
 import { stringify } from 'csv-pipe';
 
-const users = [
+type User = { name: string; email: string; age: number };
+
+const users: User[] = [
   { name: 'Alex Johnson', email: 'alex.johnson@example.com', age: 29 },
   { name: 'Carlos Herrera', email: 'carlos.h24@example.com', age: 24 }
 ];
@@ -33,44 +37,57 @@ const csv = stringify(users);
 // Carlos Herrera,carlos.h24@example.com,24
 ```
 
-By default the header row is derived from the record keys, and each field is quoted only when it contains the separator, a quote, a carriage return, or a line feed.
+The header comes from the record keys, and a field is quoted only when it contains the separator, a quote, or a line break.
 
-### Choosing, ordering, and labelling columns
+## Choosing columns
 
-The `columns` option does all three. Pass an array of keys, or a map of key to header label. Keys are checked against your data type, so a typo is a compile error.
+One `columns` option selects, orders, and labels columns. Keys are checked against your type, so a typo will not compile.
 
-```typescript
-// Array: select and order; the key is also the header.
+```ts
+// Array of keys: each key is also its header.
 stringify(users, { columns: ['name', 'email'] });
 // name,email
 // Alex Johnson,alex.johnson@example.com
 
-// Map: select, order, and label.
+// Map of key to label: also sets the header text.
 stringify(users, { columns: { name: 'Full name', email: 'Email address' } });
 // Full name,Email address
 // Alex Johnson,alex.johnson@example.com
 ```
 
-When `columns` is omitted, the columns are the stable union of every record's keys in first-seen order, so records with reordered or missing keys never shift columns.
+Without `columns`, the columns are the stable union of every record's keys, in first-seen order, so reordered or partial records never shift.
 
-### Reusing an encoder
+## Formatting values
 
-`createCsvEncoder` resolves options once and returns a callable encoder with `row` and `stream` methods. Use it when you encode many datasets with the same configuration.
+A `Date` renders as an ISO string out of the box. For anything else (custom number formats, nested objects), pass a `format` function. It receives each value and its location, and returns whatever should be encoded; return the value unchanged to pass it through.
 
-```typescript
+```ts
+// Round every number to two decimals, and leave other values as they are.
+stringify(users, {
+  format: (value) => (typeof value === 'number' ? value.toFixed(2) : value)
+});
+```
+
+## Reusing an encoder
+
+`createCsvEncoder` resolves options once and returns a callable encoder with `row` and `stream`. Use it to encode many datasets with the same configuration.
+
+```ts
 import { createCsvEncoder } from 'csv-pipe';
 
 const toCsv = createCsvEncoder<User>({ columns: ['name', 'email'] });
 
-toCsv(users); // full document as a string
-toCsv.row(users[0]); // a single line, no header
+toCsv(users); // the whole document as a string
+toCsv.row(users[0]); // one line, without a header
 ```
 
-### Streaming
+`stringify(data, options)` is shorthand for `createCsvEncoder(options)(data)`.
 
-`stream` yields string chunks and accepts a sync or async iterable, which suits large datasets and backpressure-aware writers. When `columns` are declared it is fully incremental: records are read and emitted one at a time. Without declared columns the input is buffered first, since the header needs every key.
+## Streaming
 
-```typescript
+`stream` returns string chunks and accepts a sync or async iterable. With `columns` declared it is fully incremental, reading and emitting one record at a time; without them the input is buffered first, since the header needs every key.
+
+```ts
 const toCsv = createCsvEncoder<User>({ columns: ['name', 'email'] });
 
 for await (const chunk of toCsv.stream(users)) {
@@ -78,77 +95,88 @@ for await (const chunk of toCsv.stream(users)) {
 }
 ```
 
-Adapt the stream to the primitive your runtime expects:
+Adapt the stream to your runtime:
 
-```typescript
+```ts
 import { toReadableStream } from 'csv-pipe';
 
 // Web, Deno, Bun, edge, or Node 18+: a Web ReadableStream.
-const body = toReadableStream(toCsv.stream(users));
-return new Response(body, { headers: { 'content-type': 'text/csv' } });
+return new Response(toReadableStream(toCsv.stream(users)), {
+  headers: { 'content-type': 'text/csv' }
+});
 
-// Node: a classic Readable, using the built-in helper.
+// Node: a classic Readable, via the built-in helper.
 import { Readable } from 'node:stream';
 const readable = Readable.from(toCsv.stream(users));
 ```
 
-### Writing a file in Node
+## Node and browser helpers
 
-`csv-pipe/node` streams the encoder straight to disk, so memory stays flat for large datasets.
+The core entry (`csv-pipe`) never imports `fs` or the DOM, so it runs anywhere. Each platform gets a thin helper on its own entry point.
 
-```typescript
+```ts
+// Node: stream straight to a file, with flat memory.
 import { writeCsv } from 'csv-pipe/node';
-
 await writeCsv('users.csv', users, { columns: ['name', 'email'] });
-```
 
-### Downloading in the browser
-
-`csv-pipe/browser` encodes and triggers a download, then revokes the object URL.
-
-```typescript
+// Browser: encode, trigger a download, then revoke the object URL.
 import { downloadCsv } from 'csv-pipe/browser';
-
 downloadCsv(users, { filename: 'users.csv' });
 ```
 
-The core entry (`csv-pipe`) stays platform-neutral, so it never pulls in `fs` or the DOM and runs anywhere.
-
 ## Options
 
-All options are optional.
+Every option is optional.
 
-| Option           | Type                                       | Default                            | Description                                                                |
-| ---------------- | ------------------------------------------ | ---------------------------------- | -------------------------------------------------------------------------- |
-| `separator`      | `string`                                   | `,`                                | Field separator.                                                           |
-| `quote`          | `string`                                   | `"`                                | Quote character used when a field must be quoted.                          |
-| `newline`        | `string`                                   | `\r\n`                             | Line terminator between records.                                           |
-| `quoting`        | `'minimal' \| 'all'`                       | `minimal`                          | `minimal` quotes only when required by RFC 4180; `all` quotes every field. |
-| `showHeaders`    | `boolean`                                  | `true`                             | Whether to emit a header row.                                              |
-| `columns`        | `(keyof T)[]` or `Record<keyof T, string>` | union of record keys               | Columns to emit. Array of keys, or a map of key to header label.           |
-| `nullText`       | `string`                                   | `""`                               | Rendering of `null`.                                                       |
-| `undefinedText`  | `string`                                   | `""`                               | Rendering of `undefined`.                                                  |
-| `nanText`        | `string`                                   | `""`                               | Rendering of `NaN`.                                                        |
-| `infinityText`   | `string`                                   | `Infinity`                         | Rendering of `Infinity`; `-Infinity` renders as `-` followed by this.      |
-| `booleans`       | `{ true: string; false: string }`          | `{ true: 'true', false: 'false' }` | Rendering of boolean values.                                               |
-| `arraySeparator` | `string`                                   | `, `                               | Separator used to join an array within a single cell.                      |
-| `bom`            | `boolean`                                  | `false`                            | Prepend a UTF-8 byte-order mark, which helps some spreadsheet apps.        |
+| Option           | Type                                       | Default                            | Description                                                                                          |
+| ---------------- | ------------------------------------------ | ---------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `columns`        | `(keyof T)[]` or `Record<keyof T, string>` | union of record keys               | Columns to emit: an array of keys, or a map of key to header label.                                  |
+| `showHeaders`    | `boolean`                                  | `true`                             | Whether to emit a header row.                                                                        |
+| `separator`      | `string`                                   | `,`                                | Field separator.                                                                                     |
+| `quote`          | `string`                                   | `"`                                | Quote character used when a field must be quoted.                                                    |
+| `newline`        | `string`                                   | `\r\n`                             | Line terminator between records.                                                                     |
+| `finalNewline`   | `boolean`                                  | `false`                            | Append a trailing newline after the last record.                                                     |
+| `quoting`        | `'minimal' \| 'all' \| 'non-numeric'`      | `minimal`                          | `minimal` quotes only when required; `all` quotes every field; `non-numeric` quotes all but numbers. |
+| `format`         | `(value, context) => unknown`              | none                               | Transform each value before it is encoded.                                                           |
+| `nullText`       | `string`                                   | `""`                               | Text for `null`.                                                                                     |
+| `undefinedText`  | `string`                                   | `""`                               | Text for `undefined`.                                                                                |
+| `nanText`        | `string`                                   | `""`                               | Text for `NaN`.                                                                                      |
+| `infinityText`   | `string`                                   | `Infinity`                         | Text for `Infinity`; `-Infinity` becomes `-` followed by this.                                       |
+| `booleans`       | `{ true: string; false: string }`          | `{ true: 'true', false: 'false' }` | Text for boolean values.                                                                             |
+| `arraySeparator` | `string`                                   | `, `                               | Separator used to join an array within a single cell.                                                |
+| `bom`            | `boolean`                                  | `false`                            | Prepend a UTF-8 byte-order mark, which helps some spreadsheet apps.                                  |
 
-## Behavior notes
+## Behavior
 
-- Quoted fields escape an embedded quote character by doubling it, per RFC 4180.
+- A quoted field escapes an embedded quote by doubling it, per RFC 4180.
 - `null`, `undefined`, and `NaN` render as an empty string by default.
-- An absent key and an explicit `undefined` are treated identically.
-- An array value is joined into a single cell using `arraySeparator`.
-- A value that cannot be a cell (an object, function, symbol, or `Date`) throws a `CsvPipeError` naming the row and column. Format such values before encoding.
+- A missing key and an explicit `undefined` are treated the same.
+- An array value is joined into one cell using `arraySeparator`.
+- A `Date` renders as an ISO 8601 string.
+- A value that cannot be a cell (a plain object, function, or symbol) throws a `CsvPipeError` that names the row and column. Use `format` to handle such values.
 
 ## TypeScript
 
-```typescript
+```ts
 import type { CsvOptions, CsvRecord } from 'csv-pipe';
 ```
 
-Exported types: `CsvOptions`, `CsvColumns`, `CsvEncoder`, `CsvRecord`, `CsvInput`, `CsvCell`, `CsvPrimitive`, `QuotingMode`, `BooleanStyle`, and the `CsvPipeError` class.
+Exported types: `CsvOptions`, `CsvColumns`, `CsvEncoder`, `CsvRecord`, `CsvInput`, `CsvCell`, `CsvPrimitive`, `QuotingMode`, and `BooleanStyle`, plus the `CsvPipeError` class.
+
+## Benchmarks
+
+Encoding throughput against common libraries, in operations per second (higher is better). These are indicative numbers from one dev machine on Node 24 and vary by hardware. Reproduce with `npm run bench`.
+
+| Dataset              | csv-pipe | papaparse | csv-stringify | fast-csv |
+| -------------------- | -------- | --------- | ------------- | -------- |
+| small (1,000 x 3)    | 9,080    | 5,470     | 5,320         | 1,820    |
+| wide (1,000 x 20)    | 1,130    | 737       | 778           | 653      |
+| large (50,000 x 3)   | 144      | 99        | 69            | 30       |
+| quote-heavy (5k x 3) | 904      | 898       | 570           | 303      |
+
+csv-pipe leads by about 1.5x on the small, wide, and large datasets, and edges papaparse on heavily quoted data (a near tie). It encodes in a tight loop and precompiles its quote test and escape, so the per-cell path stays minimal.
+
+The figure is also tracked over time on a [live chart](https://martsinlabs.github.io/csv-pipe/bench/): CI publishes it on every push to `master` and flags a pull request that regresses. The badges at the top of this page read from that data, so the throughput and last-updated date always reflect the latest run. Generate the data locally with `npm run build && npm run bench:track`.
 
 ## License
 

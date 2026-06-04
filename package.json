@@ -1,6 +1,6 @@
 {
   "name": "csv-pipe",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0",
   "description": "A small, fast, zero-dependency CSV encoder for TypeScript and JavaScript. Converts arrays of objects into RFC 4180-compliant CSV, and runs in Node, browsers, Deno, Bun, and edge runtimes.",
   "keywords": [
     "csv",
@@ -62,10 +62,14 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "scripts": {
-    "build": "tsup",
+    "bench": "vitest bench --run",
+    "bench:track": "node bench/track.mjs",
+    "build": "tsup && npm run build:dts",
+    "build:dts": "dts-bundle-generator --config dts-bundle-generator.config.cjs && cp dist/index.d.ts dist/index.d.cts && cp dist/browser.d.ts dist/browser.d.cts && cp dist/node.d.ts dist/node.d.cts",
     "changeset": "changeset",
     "coverage": "vitest run --coverage",
     "dev": "tsup --watch",
@@ -83,12 +87,16 @@
     "@types/node": "^24.0.0",
     "@types/papaparse": "^5.3.0",
     "@vitest/coverage-v8": "^4.1.8",
+    "csv-stringify": "^6.7.0",
+    "dts-bundle-generator": "^9.5.1",
     "eslint": "^10.4.1",
+    "fast-csv": "^5.0.7",
     "jsdom": "^29.1.1",
     "papaparse": "^5.5.3",
     "prettier": "^3.8.3",
     "prettier-plugin-organize-imports": "^4.3.0",
     "prettier-plugin-packagejson": "^3.0.2",
+    "tinybench": "^6.0.2",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.60.1",

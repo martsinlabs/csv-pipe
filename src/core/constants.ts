@@ -5,12 +5,17 @@ import type { ResolvedCsvOptions } from './options';
  * strings for absent or non-finite values, comma plus CRLF framing, and minimal
  * quoting so clean values stay unquoted.
  */
-export const DEFAULT_OPTIONS: ResolvedCsvOptions = {
+export const DEFAULT_OPTIONS: Omit<
+  ResolvedCsvOptions,
+  'quoteTest' | 'quoteEscaped' | 'quoteEscapeRegex'
+> = {
   showHeaders: true,
   separator: ',',
   quote: '"',
   newline: '\r\n',
+  finalNewline: false,
   quoting: 'minimal',
+  format: undefined,
   nullText: '',
   undefinedText: '',
   nanText: '',

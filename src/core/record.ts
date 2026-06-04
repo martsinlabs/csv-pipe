@@ -24,14 +24,19 @@ export function encodeRow(
   options: ResolvedCsvOptions,
   rowIndex: number
 ): string {
+  const { format } = options;
   let key = '';
   try {
-    const cells: string[] = [];
-    for (const column of columns) {
+    let line = '';
+    for (let index = 0; index < columns.length; index += 1) {
+      const column = columns[index]!;
       key = column.key;
-      cells.push(encodeField(record[column.key], options));
+      if (index > 0) line += options.separator;
+      const raw = record[column.key];
+      const value = format ? format(raw, { column: key, rowIndex }) : raw;
+      line += encodeField(value, options);
     }
-    return cells.join(options.separator);
+    return line;
   } catch (cause) {
     if (cause instanceof UnsupportedValueError) {
       throw unsupportedCellError(cause.value, key, rowIndex);

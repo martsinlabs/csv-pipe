@@ -24,7 +24,6 @@ const ALLOWED_CELL =
 function describe(value: unknown): string {
   if (typeof value === 'function') return 'a function';
   if (typeof value === 'symbol') return 'a symbol';
-  if (value instanceof Date) return 'a Date (format it to a string first)';
   return 'an object';
 }
 
