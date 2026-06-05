@@ -23,6 +23,8 @@ A complete rewrite into a fast, deterministic, RFC 4180-compliant CSV encoder.
 - `Date` values render as ISO 8601 strings by default.
 - `finalNewline` option to append a trailing newline.
 - `quoting: 'non-numeric'`, which quotes every field except numbers and bigints.
+- `sanitizeFormulas` (with a configurable `formulaPrefix`) to guard string and
+  array cells against spreadsheet formula injection.
 - `CsvPipeError` for values that cannot be a cell (a plain object, function, or
   symbol); the message names the row and column.
 - A benchmark suite (`npm run bench`) and gh-pages throughput tracking that

@@ -1,6 +1,12 @@
 import { UnsupportedValueError } from '../errors';
 import type { ResolvedCsvOptions } from './options';
 
+/**
+ * Leading characters a spreadsheet may interpret as the start of a formula.
+ * Mirrors the OWASP CSV-injection guidance: `=`, `+`, `-`, `@`, tab, and CR.
+ */
+const FORMULA_LEAD = /^[=+\-@\t\r]/;
+
 /** Render a single scalar to its string form per the resolved options. */
 function coercePrimitive(value: unknown, options: ResolvedCsvOptions): string {
   if (value === null) return options.nullText;
@@ -55,7 +61,16 @@ export function encodeField(
   options: ResolvedCsvOptions
 ): string {
   // Fast path for the most common cell type, skipping the coerce indirection.
-  const text = typeof value === 'string' ? value : coerce(value, options);
+  let text = typeof value === 'string' ? value : coerce(value, options);
+  // Guard string and array cells against spreadsheet formula injection. Numbers,
+  // booleans, and dates are producer-generated, so they are left untouched.
+  if (
+    options.sanitizeFormulas &&
+    (typeof value === 'string' || Array.isArray(value)) &&
+    FORMULA_LEAD.test(text)
+  ) {
+    text = options.formulaPrefix + text;
+  }
   if (!mustQuote(value, text, options)) return text;
   // indexOf is cheaper than running the escape regex on fields with no quote.
   const escaped =

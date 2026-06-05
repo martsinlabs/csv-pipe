@@ -26,6 +26,8 @@ export interface ResolvedCsvOptions {
   readonly booleans: BooleanStyle;
   readonly arraySeparator: string;
   readonly bom: boolean;
+  readonly sanitizeFormulas: boolean;
+  readonly formulaPrefix: string;
   /** Matches a field that must be quoted: contains the quote, separator, CR or LF. */
   readonly quoteTest: RegExp;
   /** The quote character doubled, used as the escape replacement. */
@@ -81,6 +83,9 @@ export function resolveOptions(
     arraySeparator: options.arraySeparator ?? DEFAULT_OPTIONS.arraySeparator,
     booleans: { ...DEFAULT_OPTIONS.booleans, ...options.booleans },
     bom: options.bom ?? DEFAULT_OPTIONS.bom,
+    sanitizeFormulas:
+      options.sanitizeFormulas ?? DEFAULT_OPTIONS.sanitizeFormulas,
+    formulaPrefix: options.formulaPrefix ?? DEFAULT_OPTIONS.formulaPrefix,
     quoteTest: buildQuoteTest(quote, separator),
     quoteEscaped: quote + quote,
     quoteEscapeRegex: new RegExp(escapeForRegExp(quote), 'g')

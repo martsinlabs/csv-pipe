@@ -17,16 +17,16 @@ npm install
 
 ## Scripts
 
-| Script                  | What it does                                        |
-| ----------------------- | --------------------------------------------------- |
-| `npm test`              | Run the test suite once                             |
-| `npm run test:watch`    | Run the tests in watch mode                         |
-| `npm run coverage`      | Run the tests with coverage                         |
-| `npm run typecheck`     | Type-check with no emit                             |
+| Script                  | What it does                                         |
+| ----------------------- | ---------------------------------------------------- |
+| `npm test`              | Run the test suite once                              |
+| `npm run test:watch`    | Run the tests in watch mode                          |
+| `npm run coverage`      | Run the tests with coverage                          |
+| `npm run typecheck`     | Type-check with no emit                              |
 | `npm run lint`          | Lint with ESLint                                     |
-| `npm run format`        | Format with Prettier                                |
-| `npm run build`         | Build the bundles and declarations                  |
-| `npm run size`          | Build and check the bundle-size budget              |
+| `npm run format`        | Format with Prettier                                 |
+| `npm run build`         | Build the bundles and declarations                   |
+| `npm run size`          | Build and check the bundle-size budget               |
 | `npm run bench`         | Run the encoding benchmarks                          |
 | `npm run check:package` | Build, then verify the package with publint and attw |
 
@@ -37,18 +37,29 @@ npm install
 - Prettier owns formatting; run `npm run format` before committing.
 - Commit messages follow Conventional Commits.
 
-## Changesets
+## Releasing
 
-The changelog is driven by [changesets](https://github.com/changesets/changesets).
-When a change affects the published package, add one:
+Releases are cut from a git tag. To publish a new version:
 
-```
-npm run changeset
-```
+1. Update `CHANGELOG.md` with the notable changes.
+2. Bump the version and create the tag:
+
+   ```
+   npm version <patch | minor | major>
+   ```
+
+3. Push the commit and the tag:
+
+   ```
+   git push --follow-tags
+   ```
+
+Pushing a `v*` tag triggers the release workflow, which verifies the package and
+publishes it to npm with provenance. The tag must match the version in
+`package.json`, or the workflow fails.
 
 ## Pull request checklist
 
 - Tests pass and cover the change.
 - `npm run typecheck`, `npm run lint`, and `npm run format:check` are clean.
-- A changeset is included when public behavior changes.
-- The README and CHANGELOG are updated when relevant.
+- The README and CHANGELOG are updated when public behavior changes.

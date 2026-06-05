@@ -93,6 +93,16 @@ export interface CsvFormatOptions {
   arraySeparator?: string;
   /** Prepend a UTF-8 byte-order mark. Default `false`. */
   bom?: boolean;
+  /**
+   * Guard against CSV formula injection. When a string or array cell would
+   * begin with a character a spreadsheet may treat as a formula (`=`, `+`, `-`,
+   * `@`, a tab, or a carriage return), prefix it with {@link formulaPrefix} so
+   * the value is shown literally. Numbers, booleans, and dates are never
+   * altered. Default `false`.
+   */
+  sanitizeFormulas?: boolean;
+  /** Prefix applied by {@link sanitizeFormulas}. Default `'` (a single quote). */
+  formulaPrefix?: string;
 }
 
 /** Full encoder options for a record type `T`. */

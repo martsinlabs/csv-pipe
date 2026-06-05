@@ -20,8 +20,17 @@ the issue is resolved and disclosed.
 
 ## CSV formula injection
 
-csv-pipe produces RFC 4180-compliant text. It does not, by default, neutralize
+csv-pipe produces RFC 4180-compliant text. By default it does not neutralize
 values that a spreadsheet application may interpret as a formula (for example a
-cell beginning with `=`, `+`, `-`, or `@`). If you export untrusted data for use
-in spreadsheets, sanitize such values before encoding, for example by prefixing
-them with a quote. A built-in option is planned.
+cell beginning with `=`, `+`, `-`, `@`, a tab, or a carriage return).
+
+When you export untrusted data for use in spreadsheets, enable the built-in
+guard:
+
+```ts
+stringify(rows, { sanitizeFormulas: true });
+```
+
+It prefixes any string or array cell that leads with a formula character so the
+value is shown literally. Numbers, booleans, and dates are never altered. The
+prefix defaults to a single quote and can be changed with `formulaPrefix`.

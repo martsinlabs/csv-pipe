@@ -22,5 +22,7 @@ export const DEFAULT_OPTIONS: Omit<
   infinityText: 'Infinity',
   booleans: { true: 'true', false: 'false' },
   arraySeparator: ', ',
-  bom: false
+  bom: false,
+  sanitizeFormulas: false,
+  formulaPrefix: "'"
 };

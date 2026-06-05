@@ -128,23 +128,25 @@ downloadCsv(users, { filename: 'users.csv' });
 
 Every option is optional.
 
-| Option           | Type                                       | Default                            | Description                                                                                          |
-| ---------------- | ------------------------------------------ | ---------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `columns`        | `(keyof T)[]` or `Record<keyof T, string>` | union of record keys               | Columns to emit: an array of keys, or a map of key to header label.                                  |
-| `showHeaders`    | `boolean`                                  | `true`                             | Whether to emit a header row.                                                                        |
-| `separator`      | `string`                                   | `,`                                | Field separator.                                                                                     |
-| `quote`          | `string`                                   | `"`                                | Quote character used when a field must be quoted.                                                    |
-| `newline`        | `string`                                   | `\r\n`                             | Line terminator between records.                                                                     |
-| `finalNewline`   | `boolean`                                  | `false`                            | Append a trailing newline after the last record.                                                     |
-| `quoting`        | `'minimal' \| 'all' \| 'non-numeric'`      | `minimal`                          | `minimal` quotes only when required; `all` quotes every field; `non-numeric` quotes all but numbers. |
-| `format`         | `(value, context) => unknown`              | none                               | Transform each value before it is encoded.                                                           |
-| `nullText`       | `string`                                   | `""`                               | Text for `null`.                                                                                     |
-| `undefinedText`  | `string`                                   | `""`                               | Text for `undefined`.                                                                                |
-| `nanText`        | `string`                                   | `""`                               | Text for `NaN`.                                                                                      |
-| `infinityText`   | `string`                                   | `Infinity`                         | Text for `Infinity`; `-Infinity` becomes `-` followed by this.                                       |
-| `booleans`       | `{ true: string; false: string }`          | `{ true: 'true', false: 'false' }` | Text for boolean values.                                                                             |
-| `arraySeparator` | `string`                                   | `, `                               | Separator used to join an array within a single cell.                                                |
-| `bom`            | `boolean`                                  | `false`                            | Prepend a UTF-8 byte-order mark, which helps some spreadsheet apps.                                  |
+| Option             | Type                                       | Default                            | Description                                                                                          |
+| ------------------ | ------------------------------------------ | ---------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `columns`          | `(keyof T)[]` or `Record<keyof T, string>` | union of record keys               | Columns to emit: an array of keys, or a map of key to header label.                                  |
+| `showHeaders`      | `boolean`                                  | `true`                             | Whether to emit a header row.                                                                        |
+| `separator`        | `string`                                   | `,`                                | Field separator.                                                                                     |
+| `quote`            | `string`                                   | `"`                                | Quote character used when a field must be quoted.                                                    |
+| `newline`          | `string`                                   | `\r\n`                             | Line terminator between records.                                                                     |
+| `finalNewline`     | `boolean`                                  | `false`                            | Append a trailing newline after the last record.                                                     |
+| `quoting`          | `'minimal' \| 'all' \| 'non-numeric'`      | `minimal`                          | `minimal` quotes only when required; `all` quotes every field; `non-numeric` quotes all but numbers. |
+| `format`           | `(value, context) => unknown`              | none                               | Transform each value before it is encoded.                                                           |
+| `nullText`         | `string`                                   | `""`                               | Text for `null`.                                                                                     |
+| `undefinedText`    | `string`                                   | `""`                               | Text for `undefined`.                                                                                |
+| `nanText`          | `string`                                   | `""`                               | Text for `NaN`.                                                                                      |
+| `infinityText`     | `string`                                   | `Infinity`                         | Text for `Infinity`; `-Infinity` becomes `-` followed by this.                                       |
+| `booleans`         | `{ true: string; false: string }`          | `{ true: 'true', false: 'false' }` | Text for boolean values.                                                                             |
+| `arraySeparator`   | `string`                                   | `, `                               | Separator used to join an array within a single cell.                                                |
+| `bom`              | `boolean`                                  | `false`                            | Prepend a UTF-8 byte-order mark, which helps some spreadsheet apps.                                  |
+| `sanitizeFormulas` | `boolean`                                  | `false`                            | Guard string and array cells against spreadsheet formula injection.                                  |
+| `formulaPrefix`    | `string`                                   | `'`                                | Prefix applied by `sanitizeFormulas`.                                                                |
 
 ## Behavior
 
@@ -154,6 +156,16 @@ Every option is optional.
 - An array value is joined into one cell using `arraySeparator`.
 - A `Date` renders as an ISO 8601 string.
 - A value that cannot be a cell (a plain object, function, or symbol) throws a `CsvPipeError` that names the row and column. Use `format` to handle such values.
+
+## Security
+
+When exporting untrusted data to a spreadsheet, enable the formula-injection guard:
+
+```ts
+stringify(rows, { sanitizeFormulas: true });
+```
+
+It prefixes any string or array cell that begins with a formula character (`=`, `+`, `-`, `@`, a tab, or a carriage return) so the value is shown literally. Numbers, booleans, and dates are never altered. See [SECURITY](SECURITY.md) for details.
 
 ## TypeScript
 
