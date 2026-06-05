@@ -173,7 +173,7 @@ It prefixes any string or array cell that begins with a formula character (`=`, 
 import type { CsvOptions, CsvRecord } from 'csv-pipe';
 ```
 
-Exported types: `CsvOptions`, `CsvColumns`, `CsvEncoder`, `CsvRecord`, `CsvInput`, `CsvCell`, `CsvPrimitive`, `QuotingMode`, and `BooleanStyle`, plus the `CsvPipeError` class.
+Exported types: `CsvOptions`, `CsvColumns`, `CsvEncoder`, `CsvRecord`, `CsvInput`, `CsvCell`, `CsvPrimitive`, `QuotingMode`, `BooleanStyle`, `CsvFormatter`, and `CsvFormatContext`, plus the `CsvPipeError` class.
 
 ## Benchmarks
 
@@ -188,7 +188,7 @@ Encoding throughput against common libraries, in operations per second (higher i
 
 csv-pipe leads by about 1.5x on the small, wide, and large datasets, and edges papaparse on heavily quoted data (a near tie). It encodes in a tight loop and precompiles its quote test and escape, so the per-cell path stays minimal.
 
-The figure is also tracked over time on a [live chart](https://martsinlabs.github.io/csv-pipe/bench/): CI publishes it on every push to `master` and flags a pull request that regresses. The badges at the top of this page read from that data, so the throughput and last-updated date always reflect the latest run. Generate the data locally with `npm run build && npm run bench:track`.
+The figure is also tracked over time on a [live chart](https://martsinlabs.github.io/csv-pipe/bench/): CI measures it on every push to `master`, publishes the result, and fails the run if throughput regresses past the alert threshold. The badges at the top of this page read from that data, so the throughput and last-updated date always reflect the latest run. Generate the data locally with `npm run build && npm run bench:track`.
 
 ## Contributing
 

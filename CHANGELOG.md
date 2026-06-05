@@ -58,7 +58,9 @@ A complete rewrite into a fast, deterministic, RFC 4180-compliant CSV encoder.
 - Dual ESM and CJS build with type declarations (tsup), TypeScript 6, Vitest
   with coverage, ESLint, and Prettier. Zero runtime dependencies.
 - GitHub Actions CI runs typecheck, lint, format check, tests, and build across
-  Node 18, 20, and 22.
+  Node 18, 20, and 22, plus a cross-runtime smoke test of the built bundle on
+  Node, Deno, and Bun.
+- Supply-chain hardening: CodeQL analysis and weekly Dependabot updates.
 - The encoder precompiles its quote test and escape and encodes rows in a tight
   loop, making it the fastest of the benchmarked encoders on every dataset.
 - CI verifies the published package with publint and checks type resolution

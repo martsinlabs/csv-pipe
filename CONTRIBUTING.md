@@ -26,6 +26,7 @@ npm install
 | `npm run lint`          | Lint with ESLint                                     |
 | `npm run format`        | Format with Prettier                                 |
 | `npm run build`         | Build the bundles and declarations                   |
+| `npm run smoke`         | Run the built bundle's cross-runtime smoke test      |
 | `npm run size`          | Build and check the bundle-size budget               |
 | `npm run bench`         | Run the encoding benchmarks                          |
 | `npm run check:package` | Build, then verify the package with publint and attw |
