@@ -116,6 +116,87 @@ export interface CsvOptions<
   columns?: CsvColumns<T>;
 }
 
+/** A value produced by the parser when `dynamicTyping` is enabled. */
+export type CsvParsedValue = string | number | boolean;
+
+/** Per-record context passed to a {@link CsvRowMapper}. */
+export interface CsvRowContext {
+  /** The record's zero-based position among the emitted records. */
+  readonly rowIndex: number;
+}
+
+/**
+ * Map each raw parsed record into the final element. Use it to validate (for
+ * example with a schema library) or reshape a record. The returned value is what
+ * `parse` yields, so this is where runtime type safety can be enforced.
+ */
+export type CsvRowMapper<T> = (record: CsvRecord, context: CsvRowContext) => T;
+
+/**
+ * Column selection and renaming for parsing into a record type `T`.
+ *
+ * - An array of keys names each column by position and emits objects with those
+ *   keys. With `header: true` the CSV header row is dropped in favor of these.
+ * - A map of CSV header label to key renames and selects columns (header
+ *   labels not in the map are dropped). Requires `header: true`.
+ */
+export type CsvParseColumns<T> =
+  | readonly (keyof T & string)[]
+  | Partial<Record<string, keyof T & string>>;
+
+/** Options for {@link parse} and {@link createCsvParser}. */
+export interface CsvParseOptions<T = CsvRecord> {
+  /**
+   * Treat the first row as the header and emit objects keyed by it. When
+   * `false`, each record is the raw `string[]` of fields, unless `columns`
+   * names them. Default `true`.
+   */
+  header?: boolean;
+  /** Name, select, or rename the columns to emit. */
+  columns?: CsvParseColumns<T>;
+  /** Field separator, a single character, or `'auto'` to detect it. Default `,`. */
+  separator?: string;
+  /** Quote character. A single character. Default `"`. */
+  quote?: string;
+  /** Skip blank lines. `'greedy'` also drops whitespace-only lines. Default `true`. */
+  skipEmptyLines?: boolean | 'greedy';
+  /** Lines beginning with this string are skipped. Default none. */
+  comment?: string;
+  /** Trim whitespace around every field value. Default `false`. */
+  trim?: boolean;
+  /**
+   * Strip a leading UTF-8 byte-order mark. When `undefined`, a BOM is stripped
+   * if present. Set `false` to keep it.
+   */
+  bom?: boolean;
+  /**
+   * Coerce field text to `number` or `boolean` when it round-trips exactly
+   * (so `"007"` and `"1.50"` stay strings). Default `false`.
+   */
+  dynamicTyping?: boolean;
+  /** Throw on a row whose field count differs from the header. Default `false`. */
+  strict?: boolean;
+  /** Stop after this many records. Default unlimited. */
+  maxRows?: number;
+  /** Map or validate each raw record into the final element. */
+  row?: CsvRowMapper<T>;
+}
+
+/** Input the streaming parser accepts: text, chunks, or a byte or text stream. */
+export type CsvSource =
+  | string
+  | Iterable<string | Uint8Array>
+  | AsyncIterable<string | Uint8Array>
+  | ReadableStream<string | Uint8Array>;
+
+/** A prepared parser. Call it with CSV text, or stream a source of chunks. */
+export interface CsvParser<T = CsvRecord> {
+  /** Parse a full CSV string into records. */
+  (input: string): T[];
+  /** Parse a streamed source into records, one at a time, with flat memory. */
+  stream(source: CsvSource): AsyncIterable<T>;
+}
+
 /**
  * A prepared encoder. Call it with data to get a CSV string, or use its methods
  * for a single row or for streaming output.

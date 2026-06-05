@@ -1,9 +1,9 @@
-// Measures csv-pipe's own encoding throughput and writes results in the
+// Measures csv-pipe's own encode and parse throughput and writes results in the
 // github-action-benchmark "customBiggerIsBetter" format for regression tracking.
 // Run after a build: `npm run build && node bench/track.mjs`.
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { Bench } from 'tinybench';
-import { stringify } from '../dist/index.js';
+import { parse, stringify } from '../dist/index.js';
 
 function makeRows(count, columns) {
   const keys = Array.from({ length: columns }, (_, index) => `col${index}`);
@@ -38,14 +38,24 @@ const datasets = [
   ['quote-heavy (5k x 3)', makeQuoteHeavyRows(5_000)]
 ];
 
-const rowCountByName = new Map(
+const rowCountByDataset = new Map(
   datasets.map(([name, rows]) => [name, rows.length])
+);
+// CSV inputs for the parse benchmarks, produced by the encoder.
+const csvByDataset = new Map(
+  datasets.map(([name, rows]) => [name, stringify(rows)])
 );
 
 const bench = new Bench({ time: 500 });
 for (const [name, rows] of datasets) {
-  bench.add(name, () => {
+  bench.add(`encode: ${name}`, () => {
     stringify(rows);
+  });
+}
+for (const [name] of datasets) {
+  const csv = csvByDataset.get(name);
+  bench.add(`parse: ${name}`, () => {
+    parse(csv);
   });
 }
 
@@ -57,18 +67,28 @@ const results = bench.tasks.map((task) => ({
   value: Math.round(task.result.throughput.mean)
 }));
 
-// Headline figure for the README badge: rows encoded per second on the large
-// dataset, which is the most representative throughput number.
-const large = results.find((result) => result.name.startsWith('large'));
-const rowsPerSecond =
-  (large?.value ?? 0) * (rowCountByName.get(large?.name) ?? 0);
-const badge = {
-  schemaVersion: 1,
-  label: 'encode',
-  message: `${(rowsPerSecond / 1e6).toFixed(1)}M rows/s`,
-  color: 'brightgreen'
-};
+// Headline figure for a badge: rows per second on the large dataset (the most
+// representative throughput), for both directions.
+function headline(direction, label) {
+  const task = results.find(
+    (result) => result.name === `${direction}: large (50k x 3)`
+  );
+  const datasetRows = rowCountByDataset.get('large (50k x 3)') ?? 0;
+  const rowsPerSecond = (task?.value ?? 0) * datasetRows;
+  return {
+    schemaVersion: 1,
+    label,
+    message: `${(rowsPerSecond / 1e6).toFixed(1)}M rows/s`,
+    color: 'brightgreen'
+  };
+}
 
-writeFileSync('bench-results.json', JSON.stringify(results, null, 2));
-writeFileSync('bench-badge.json', JSON.stringify(badge, null, 2));
-console.log(JSON.stringify({ results, badge }, null, 2));
+const encodeBadge = headline('encode', 'encode');
+const parseBadge = headline('parse', 'parse');
+
+// Outputs go to public/, the gitignored directory that is published to gh-pages.
+mkdirSync('public', { recursive: true });
+writeFileSync('public/bench-results.json', JSON.stringify(results, null, 2));
+writeFileSync('public/encode-badge.json', JSON.stringify(encodeBadge, null, 2));
+writeFileSync('public/parse-badge.json', JSON.stringify(parseBadge, null, 2));
+console.log(JSON.stringify({ results, encodeBadge, parseBadge }, null, 2));

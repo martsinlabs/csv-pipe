@@ -18,8 +18,6 @@ yarn-error.log*
 *.tsbuildinfo
 
 # Benchmark and badge output
-bench-results.json
-bench-badge.json
 size.json
 public
 

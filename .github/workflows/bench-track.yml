@@ -29,9 +29,9 @@ jobs:
       - name: Publish to gh-pages and alert on regression
         uses: benchmark-action/github-action-benchmark@v1
         with:
-          name: csv-pipe encoding throughput
+          name: csv-pipe throughput
           tool: customBiggerIsBetter
-          output-file-path: bench-results.json
+          output-file-path: public/bench-results.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           gh-pages-branch: gh-pages
@@ -45,11 +45,6 @@ jobs:
           npm run coverage
           npx size-limit --json > size.json
           node scripts/status-badges.mjs
-
-      - name: Stage badges
-        run: |
-          mkdir -p public
-          cp bench-badge.json public/
 
       - name: Publish badges to gh-pages
         uses: peaceiris/actions-gh-pages@v4
