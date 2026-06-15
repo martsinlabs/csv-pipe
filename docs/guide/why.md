@@ -14,9 +14,11 @@ description: Typed columns, two-way streaming, formula-injection safety, and RFC
 - **Flat memory, both ways.** Encode and parse stream incrementally, one record
   at a time, so a file or HTTP body of any size stays at flat memory.
 - **Safe by a flag.** `sanitizeFormulas` neutralizes spreadsheet formula
-  injection (`=`, `+`, `-`, `@`), so you never hand-sanitize cells.
-- **Fast and small.** The fastest of the common encoders and parsers on every
-  benchmark, at under 2 kB per direction with zero dependencies.
+  injection (cells starting with `=`, `+`, `-`, `@`, a tab, or a carriage
+  return), so you never hand-sanitize cells.
+- **Fast and small.** The fastest common parser by a wide margin, and the
+  fastest or on-par encoder, across every benchmark, at under 2 kB per direction
+  with zero dependencies.
 
 ## A typo never ships
 

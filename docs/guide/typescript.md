@@ -1,5 +1,5 @@
 ---
-description: Typed CSV encoding with columns checked against your data and inferred types on hover.
+description: Typed CSV encoding and parsing with columns checked against your data and inferred types on hover.
 ---
 
 # TypeScript
@@ -57,6 +57,13 @@ const toCsv = createCsvEncoder<User>({ columns: ['name', 'email'] });
 toCsv(users);
 toCsv.row(users[0]);
 ```
+
+## Typed parsing
+
+Parsing is typed too. `parse<T>` and `createCsvParser<T>` infer the record type,
+and `columns` is checked against it, just as with encoding. See
+[Typing and validation](./parsing-typing) for dynamic typing and runtime
+validation.
 
 ## Exported types
 

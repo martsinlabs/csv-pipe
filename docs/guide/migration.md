@@ -8,7 +8,7 @@ Moving to csv-pipe is usually a one-line change per call plus a small option
 remap. It quotes per RFC 4180 by default and infers the header from the record
 keys, so many call sites need nothing more. This page covers encoding; parsing
 maps the same way (`Papa.parse`, `csv-parse`, and `parseStream` to `parse` and
-`createCsvParser`), with the [parsing options](./parsing#options) as the target.
+`createCsvParser`), with the [parsing options](./parsing-options) as the target.
 
 Option names below reflect each library's documented behavior and may change
 between versions; check the current docs of each.

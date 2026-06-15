@@ -23,7 +23,7 @@ const apiSidebar =
 export default defineConfig({
   title: 'csv-pipe',
   description:
-    'A small, fast, zero-dependency CSV encoder for TypeScript and JavaScript.',
+    'A small, fast, zero-dependency CSV encoder and parser for TypeScript and JavaScript.',
   base: '/csv-pipe/',
   lang: 'en-US',
   cleanUrls: true,
@@ -57,7 +57,8 @@ export default defineConfig({
       'meta',
       {
         property: 'og:description',
-        content: 'Typed, RFC 4180 CSV encoding for every JavaScript runtime.'
+        content:
+          'Typed, RFC 4180 CSV encoding and parsing for every JavaScript runtime.'
       }
     ],
     [
@@ -113,7 +114,13 @@ export default defineConfig({
         },
         {
           text: 'Parsing',
-          items: [{ text: 'Parsing', link: '/guide/parsing' }]
+          items: [
+            { text: 'Parsing', link: '/guide/parsing' },
+            { text: 'Choosing columns', link: '/guide/parsing-columns' },
+            { text: 'Typing and validation', link: '/guide/parsing-typing' },
+            { text: 'Streaming and files', link: '/guide/parsing-streaming' },
+            { text: 'Options', link: '/guide/parsing-options' }
+          ]
         },
         {
           text: 'More',

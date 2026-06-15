@@ -1,5 +1,5 @@
 ---
-description: Stream large CSV exports with flat memory, to a file or a Web ReadableStream.
+description: Stream large CSV exports with flat memory to a file or a Web ReadableStream, plus a browser download helper.
 ---
 
 # Streaming
@@ -55,7 +55,9 @@ const readable = Readable.from(encoder.stream(rows));
 ## Downloading in the browser
 
 `csv-pipe/browser` exports `downloadCsv`, which encodes the data, triggers a
-download, and revokes the object URL afterward.
+download, and revokes the object URL afterward. Unlike the helpers above it
+builds the whole CSV in memory first, so it is the convenient path when the data
+fits in memory rather than a streaming one.
 
 ```ts
 import { downloadCsv } from 'csv-pipe/browser';

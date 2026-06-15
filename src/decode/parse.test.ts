@@ -75,6 +75,23 @@ describe('parse', () => {
     expect(rows).toEqual([{ id: 1 }, { id: 2 }]);
   });
 
+  it('greedy skipEmptyLines drops whitespace-only lines', () => {
+    expect(parse('a\n1\n   \n2', { skipEmptyLines: 'greedy' })).toEqual([
+      { a: '1' },
+      { a: '2' }
+    ]);
+  });
+
+  it('returns no rows for maxRows: 0', () => {
+    expect(parse('a\n1\n2\n3', { maxRows: 0 })).toEqual([]);
+  });
+
+  it('keeps non-finite values as strings under dynamicTyping', () => {
+    expect(
+      parse('n,m,k\nInfinity,-Infinity,NaN', { dynamicTyping: true })
+    ).toEqual([{ n: 'Infinity', m: '-Infinity', k: 'NaN' }]);
+  });
+
   it('rejects a multi-character separator', () => {
     expect(() => parse('a\n1', { separator: '::' })).toThrow(CsvPipeError);
   });

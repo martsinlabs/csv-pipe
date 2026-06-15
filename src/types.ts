@@ -160,9 +160,17 @@ export interface CsvParseOptions<T = CsvRecord> {
   quote?: string;
   /** Skip blank lines. `'greedy'` also drops whitespace-only lines. Default `true`. */
   skipEmptyLines?: boolean | 'greedy';
-  /** Lines beginning with this string are skipped. Default none. */
+  /**
+   * Lines beginning with this string are skipped. Default none. A line is
+   * matched by its first field after quotes are parsed, so a quoted first field
+   * that begins with this string also counts as a comment.
+   */
   comment?: string;
-  /** Trim whitespace around every field value. Default `false`. */
+  /**
+   * Trim whitespace around every field value. Default `false`. This applies to
+   * every field, including quoted ones, so whitespace inside quotes is trimmed
+   * too. Leave it off to preserve values exactly.
+   */
   trim?: boolean;
   /**
    * Strip a leading UTF-8 byte-order mark. When `undefined`, a BOM is stripped
@@ -171,7 +179,8 @@ export interface CsvParseOptions<T = CsvRecord> {
   bom?: boolean;
   /**
    * Coerce field text to `number` or `boolean` when it round-trips exactly
-   * (so `"007"` and `"1.50"` stay strings). Default `false`.
+   * (so `"007"` and `"1.50"` stay strings). Only finite numbers are coerced, so
+   * `"Infinity"`, `"-Infinity"`, and `"NaN"` stay strings. Default `false`.
    */
   dynamicTyping?: boolean;
   /** Throw on a row whose field count differs from the header. Default `false`. */

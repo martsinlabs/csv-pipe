@@ -26,14 +26,16 @@ function singleCharCode(value: string, name: string): number {
 /**
  * Coerce field text to a number or boolean, but only when the conversion is
  * lossless (the value round-trips exactly). This keeps `"007"`, `"1.50"`, and
- * `"+1"` as strings, so dynamic typing never silently corrupts data.
+ * `"+1"` as strings, so dynamic typing never silently corrupts data. Only finite
+ * numbers are coerced, so `"Infinity"`, `"-Infinity"`, and `"NaN"` stay strings.
  */
 function coerce(value: string): CsvParsedValue {
   if (value === 'true') return true;
   if (value === 'false') return false;
   if (value.length > 0) {
     const asNumber = Number(value);
-    if (!Number.isNaN(asNumber) && String(asNumber) === value) return asNumber;
+    if (Number.isFinite(asNumber) && String(asNumber) === value)
+      return asNumber;
   }
   return value;
 }
@@ -81,14 +83,21 @@ function hasRowBreakOutsideQuotes(text: string, quoteCode: number): boolean {
   return false;
 }
 
-/** Normalize any accepted source into a stream of decoded string chunks. */
-async function* toChunks(source: CsvSource): AsyncIterable<string> {
+/**
+ * Normalize any accepted source into a stream of decoded string chunks. When
+ * `ignoreBom` is true a leading byte-order mark is preserved; otherwise the
+ * decoder strips it, matching the `bom` option for byte sources.
+ */
+async function* toChunks(
+  source: CsvSource,
+  ignoreBom: boolean
+): AsyncIterable<string> {
   if (typeof source === 'string') {
     yield source;
     return;
   }
 
-  const decoder = new TextDecoder();
+  const decoder = new TextDecoder('utf-8', { ignoreBOM: ignoreBom });
   const maybeStream = source as ReadableStream<string | Uint8Array>;
   if (typeof maybeStream.getReader === 'function') {
     const reader = maybeStream.getReader();
@@ -221,6 +230,7 @@ export function createCsvParser<T = CsvRecord>(
   }
 
   const parseString = (input: string): T[] => {
+    if (maxRows <= 0) return [];
     let text = input;
     if (stripBom && text.charCodeAt(0) === 0xfeff) text = text.slice(1);
     const separator = autoSeparator
@@ -240,8 +250,9 @@ export function createCsvParser<T = CsvRecord>(
   };
 
   async function* stream(source: CsvSource): AsyncIterable<T> {
+    if (maxRows <= 0) return;
     const process = makeProcessor();
-    const iterator = toChunks(source)[Symbol.asyncIterator]();
+    const iterator = toChunks(source, !stripBom)[Symbol.asyncIterator]();
     let count = 0;
     let separator = separatorCode;
     let bomPending = stripBom;

@@ -96,4 +96,25 @@ describe('parser.stream', () => {
     );
     expect(limited).toEqual([{ a: '1' }]);
   });
+
+  it('ignores stray characters after a closing quote, split across chunks', async () => {
+    const rows = await collect(
+      createCsvParser({ header: false }).stream(['"x"ju', 'nk,y'])
+    );
+    expect(rows).toEqual([['x', 'y']]);
+  });
+
+  it('yields no rows for maxRows: 0', async () => {
+    const rows = await collect(
+      createCsvParser({ maxRows: 0 }).stream('a\n1\n2')
+    );
+    expect(rows).toEqual([]);
+  });
+
+  it('closes a quoted field right before a line break (LF and CRLF)', async () => {
+    const rows = await collect(
+      createCsvParser({ header: false }).stream('"a"\n"b"\r\nc')
+    );
+    expect(rows).toEqual([['a'], ['b'], ['c']]);
+  });
 });

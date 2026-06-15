@@ -51,7 +51,7 @@ features:
       width: 28
       height: 28
     title: Fast and small
-    details: The fastest of the common encoders and parsers on every benchmark, at under 2 kB per direction with zero dependencies.
+    details: The fastest common parser by a wide margin, and the fastest or on-par encoder, across every benchmark, at under 2 kB per direction with zero dependencies.
 ---
 
 <div style="max-width: 960px; margin: 4rem auto 0; padding: 0 24px;">

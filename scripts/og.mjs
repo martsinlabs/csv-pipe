@@ -33,7 +33,7 @@ const svg = `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http:/
     <path transform="scale(3.75)" d="M21.5 16h4.2M23.6 13.2l3 2.8-3 2.8" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
   </g>
   <text x="252" y="205" font-family="Helvetica, Arial, sans-serif" font-size="92" font-weight="700" fill="#ffffff">csv-pipe</text>
-  <text x="256" y="252" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="400" fill="#7ee787">Typed CSV encoding for every runtime</text>
+  <text x="256" y="252" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="400" fill="#7ee787">Typed CSV, encode and parse, for every runtime</text>
   <text x="100" y="392" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#c9d1d9">RFC 4180 correct. Checked against your data.</text>
   <text x="100" y="440" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#c9d1d9">The same core on Node, browsers, Deno, Bun, and edge.</text>
   <text x="100" y="556" font-family="Helvetica, Arial, sans-serif" font-size="26" font-weight="700" fill="#8b949e">Zero dependencies&#160;&#160;·&#160;&#160;~1.6 kB&#160;&#160;·&#160;&#160;Streaming&#160;&#160;·&#160;&#160;Type-safe</text>

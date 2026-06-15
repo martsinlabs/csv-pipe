@@ -1,15 +1,16 @@
 ---
-description: csv-pipe is the fastest of the common CSV libraries at both encoding and parsing.
+description: csv-pipe is the fastest common CSV parser, and matches or beats the other libraries at encoding.
 ---
 
 # Benchmarks
 
-csv-pipe is the fastest of the common CSV libraries at **both** encoding and
-parsing, on every dataset.
+csv-pipe is the fastest of the common CSV libraries at parsing, by a wide margin,
+and the fastest or on par at encoding, across every dataset tested.
 
-Throughput is in operations per second (higher is better). These are indicative
-numbers from one dev machine; they vary by hardware. Reproduce them with
-`npm run bench`.
+Throughput is in operations per second, where one operation encodes or parses the
+whole dataset (higher is better). On the large dataset that is roughly 7M rows/s
+for encoding and 10M rows/s for parsing. These are indicative numbers from one dev
+machine; they vary by hardware. Reproduce them with `npm run bench`.
 
 ## Encoding
 
@@ -21,6 +22,10 @@ Objects to CSV text, against papaparse, csv-stringify, and fast-csv.
 | wide (1,000 x 20)    | 1,130    | 737       | 778           | 653      |
 | large (50,000 x 3)   | 144      | 99        | 69            | 30       |
 | quote-heavy (5k x 3) | 904      | 898       | 570           | 303      |
+
+On encoding, csv-pipe runs about 1.5x faster than papaparse and csv-stringify, and
+up to roughly 5x faster than fast-csv. On quote-heavy data it is about on par with
+papaparse, and still ahead of csv-stringify and fast-csv.
 
 ## Parsing
 

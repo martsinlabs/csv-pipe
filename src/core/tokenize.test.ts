@@ -56,4 +56,9 @@ describe('tokenize', () => {
     expect(run('"ab')).toEqual([['ab']]);
     expect(run('a,"bc')).toEqual([['a', 'bc']]);
   });
+
+  it('ignores stray characters after a closing quote', () => {
+    expect(run('"a"junk,b')).toEqual([['a', 'b']]);
+    expect(run('"a"junk\nb')).toEqual([['a'], ['b']]);
+  });
 });

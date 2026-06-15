@@ -4,9 +4,10 @@ description: How csv-pipe compares with papaparse, csv-stringify, csv-parse, and
 
 # Comparison
 
-csv-pipe both encodes and parses CSV, and is the fastest of the common libraries
-at each. The table compares the attributes that differ; throughput is covered on
-the [benchmarks page](./benchmarks).
+csv-pipe both encodes and parses CSV. It is the fastest of the common libraries at
+parsing by a wide margin, and the fastest or on par at encoding. The table compares
+the attributes that differ; throughput is covered on the
+[benchmarks page](./benchmarks).
 
 |                                   | csv-pipe                       | papaparse      | csv-stringify / csv-parse | fast-csv       |
 | --------------------------------- | ------------------------------ | -------------- | ------------------------- | -------------- |
@@ -16,7 +17,8 @@ the [benchmarks page](./benchmarks).
 | Web `ReadableStream`              | Yes                            | No             | No                        | No             |
 | Built-in formula-injection guard  | Yes                            | No             | No                        | No             |
 | Runtime dependencies              | None                           | None           | A few                     | A few          |
-| Fastest at encode and parse       | Yes                            | No             | No                        | No             |
+| Fastest at parsing (wide margin)  | Yes                            | No             | No                        | No             |
+| Fastest or on par at encoding     | Yes                            | No             | No                        | No             |
 
 Attributes other than throughput reflect each library's documented behavior and
 may change between versions; check the current docs of each.

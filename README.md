@@ -48,7 +48,7 @@ The header comes from the record keys, quoting and escaping are correct out of t
 - **Runs where your code runs.** The core imports no `fs` and no DOM, and streaming returns a Web `ReadableStream`. One import for Node, the browser, Deno, Bun, and edge.
 - **Flat memory, both ways.** Encode and parse stream incrementally, one record at a time, so a file or HTTP body of any size stays at flat memory.
 - **Safe by a flag.** `sanitizeFormulas` neutralizes spreadsheet formula injection, so you never hand-sanitize cells.
-- **Fast and small.** The fastest of the common encoders and parsers on every [benchmark](https://martsinlabs.github.io/csv-pipe/guide/benchmarks), at under 2 kB per direction with zero dependencies.
+- **Fast and small.** The fastest common parser by a wide margin, and the fastest or on-par encoder, across every [benchmark](https://martsinlabs.github.io/csv-pipe/guide/benchmarks), at under 2 kB per direction with zero dependencies.
 
 ## Documentation
 
