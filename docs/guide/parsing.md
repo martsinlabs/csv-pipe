@@ -82,6 +82,19 @@ for await (const record of parser.stream(response.body!)) {
 }
 ```
 
+## Reading a file in Node
+
+`csv-pipe/node` exports `readCsv`, the mirror of `writeCsv`, which reads and
+parses a file as a stream of records with flat memory.
+
+```ts
+import { readCsv } from 'csv-pipe/node';
+
+for await (const user of readCsv<User>('users.csv')) {
+  // one record at a time, the file is never fully loaded
+}
+```
+
 ## Validation
 
 Pass a `row` hook to turn each raw record into the final element. This is where a

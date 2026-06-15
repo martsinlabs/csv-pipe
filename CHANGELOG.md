@@ -19,7 +19,8 @@ A complete rewrite into a fast, deterministic, RFC 4180-compliant CSV encoder an
   `comment`, `trim`, `strict`, `maxRows`, and a `row` validation hook.
 - `toReadableStream`, which adapts a stream to a Web `ReadableStream`.
 - Platform entry points: `csv-pipe/browser` exports `downloadCsv`, and
-  `csv-pipe/node` exports `writeCsv`. The core entry stays platform-neutral.
+  `csv-pipe/node` exports `writeCsv` and `readCsv`. The core entry stays
+  platform-neutral.
 - One `columns` option that selects, orders, and labels columns. It takes an
   array of keys, or a map of key to header label, with keys checked against the
   record type.
