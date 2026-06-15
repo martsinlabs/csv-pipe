@@ -122,3 +122,22 @@ jobs:
 
       - name: Smoke test (Bun)
         run: bun scripts/smoke.mjs
+
+  bench-gate:
+    name: Benchmark gate (fastest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Assert csv-pipe leads competitors
+        run: npm run bench:gate

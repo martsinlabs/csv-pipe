@@ -4,6 +4,8 @@
 // every runtime.
 import {
   createCsvEncoder,
+  createCsvParser,
+  parse,
   stringify,
   toReadableStream
 } from '../dist/index.js';
@@ -61,5 +63,34 @@ for (;;) {
   streamed += value;
 }
 assertEqual(streamed, 'a,b\r\n1,\r\n2,', 'readable stream round-trip');
+
+// Parsing: header inference, encode/parse round-trip, and streaming. Proves the
+// other half of the library loads and works in every runtime.
+assertEqual(
+  JSON.stringify(parse('name,age\r\nAda,36')),
+  JSON.stringify([{ name: 'Ada', age: '36' }]),
+  'basic parse'
+);
+
+const original = [{ a: '1', b: 'x,y' }];
+assertEqual(
+  JSON.stringify(parse(stringify(original))),
+  JSON.stringify(original),
+  'encode then parse round-trip'
+);
+
+const parser = createCsvParser();
+const parsedRows = [];
+for await (const record of parser.stream(['a,b\n1,', '2\n3,4'])) {
+  parsedRows.push(record);
+}
+assertEqual(
+  JSON.stringify(parsedRows),
+  JSON.stringify([
+    { a: '1', b: '2' },
+    { a: '3', b: '4' }
+  ]),
+  'stream parse round-trip'
+);
 
 console.log(`smoke: ${runtime} OK`);

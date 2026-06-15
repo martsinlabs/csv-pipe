@@ -1,12 +1,15 @@
 {
   "name": "csv-pipe",
   "version": "2.0.0",
-  "description": "A small, fast, zero-dependency CSV encoder for TypeScript and JavaScript. Converts arrays of objects into RFC 4180-compliant CSV, and runs in Node, browsers, Deno, Bun, and edge runtimes.",
+  "description": "A small, fast, zero-dependency CSV encoder and parser for TypeScript and JavaScript. It converts between arrays of objects and RFC 4180-compliant CSV, with typed streaming in both directions, and runs in Node, browsers, Deno, Bun, and edge runtimes.",
   "keywords": [
     "csv",
     "rfc4180",
     "stringify",
+    "parse",
+    "parser",
     "encode",
+    "decode",
     "data",
     "export",
     "convert",
@@ -77,6 +80,7 @@
   ],
   "scripts": {
     "bench": "vitest bench --run",
+    "bench:gate": "node bench/assert-fastest.mjs",
     "bench:track": "node bench/track.mjs",
     "build": "tsup && npm run build:dts",
     "build:dts": "dts-bundle-generator --config dts-bundle-generator.config.cjs && cp dist/index.d.ts dist/index.d.cts && cp dist/browser.d.ts dist/browser.d.cts && cp dist/node.d.ts dist/node.d.cts",
