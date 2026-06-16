@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "parse",
-  "message": "2.8M rows/s",
+  "message": "2.3M rows/s",
   "color": "brightgreen"
 }
