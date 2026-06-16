@@ -62,6 +62,16 @@ describe('parse', () => {
     expect(() => parse('a,b\n1', { strict: true })).toThrow(CsvPipeError);
   });
 
+  it('reports the 1-based source row in strict mode, header included', () => {
+    expect(() => parse('a,b\n1', { strict: true })).toThrow(
+      'Row 2 has 1 fields, expected 2.'
+    );
+    // Skipped blank lines still count toward the source row number.
+    expect(() => parse('a,b\n1,2\n\n3', { strict: true })).toThrow(
+      'Row 4 has 1 fields, expected 2.'
+    );
+  });
+
   it('honors a custom separator and maxRows', () => {
     expect(parse('a;b\n1;2\n3;4', { separator: ';', maxRows: 1 })).toEqual([
       { a: '1', b: '2' }

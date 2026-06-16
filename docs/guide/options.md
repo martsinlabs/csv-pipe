@@ -10,8 +10,8 @@ Every option is optional.
 | ------------------ | ------------------------------------------ | ---------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `columns`          | `(keyof T)[]` or `Record<keyof T, string>` | union of record keys               | Columns to emit: an array of keys, or a map of key to header label.                                  |
 | `showHeaders`      | `boolean`                                  | `true`                             | Whether to emit a header row.                                                                        |
-| `separator`        | `string`                                   | `,`                                | Field separator.                                                                                     |
-| `quote`            | `string`                                   | `"`                                | Quote character used when a field must be quoted.                                                    |
+| `separator`        | `string`                                   | `,`                                | Field separator. One character.                                                                      |
+| `quote`            | `string`                                   | `"`                                | Quote character used when a field must be quoted. One character.                                     |
 | `newline`          | `string`                                   | `\r\n`                             | Line terminator between records.                                                                     |
 | `finalNewline`     | `boolean`                                  | `false`                            | Append a trailing newline after the last record.                                                     |
 | `quoting`          | `'minimal' \| 'all' \| 'non-numeric'`      | `minimal`                          | `minimal` quotes only when required; `all` quotes every field; `non-numeric` quotes all but numbers. |
@@ -28,6 +28,8 @@ Every option is optional.
 
 ## Behavior
 
+- `separator` and `quote` must be a single character, matching the parser, so
+  encoded output round-trips. A non-single-character value throws a `CsvPipeError`.
 - A quoted field escapes an embedded quote by doubling it, per RFC 4180.
 - `null`, `undefined`, and `NaN` render as an empty string by default.
 - A missing key and an explicit `undefined` are treated the same.

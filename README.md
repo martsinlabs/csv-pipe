@@ -2,7 +2,7 @@
 
 [![CI](https://img.shields.io/github/actions/workflow/status/martsinlabs/csv-pipe/ci.yml?branch=master&label=CI)](https://github.com/martsinlabs/csv-pipe/actions/workflows/ci.yml) [![coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fmartsinlabs.github.io%2Fcsv-pipe%2Fcoverage-badge.json)](https://github.com/martsinlabs/csv-pipe/actions/workflows/ci.yml) [![bundle size](https://img.shields.io/endpoint?url=https%3A%2F%2Fmartsinlabs.github.io%2Fcsv-pipe%2Fsize-badge.json)](https://martsinlabs.github.io/csv-pipe/guide/benchmarks) [![encode throughput](https://img.shields.io/endpoint?url=https%3A%2F%2Fmartsinlabs.github.io%2Fcsv-pipe%2Fencode-badge.json)](https://martsinlabs.github.io/csv-pipe/guide/benchmarks) [![parse throughput](https://img.shields.io/endpoint?url=https%3A%2F%2Fmartsinlabs.github.io%2Fcsv-pipe%2Fparse-badge.json)](https://martsinlabs.github.io/csv-pipe/guide/benchmarks)
 
-A small, fast, zero-dependency CSV encoder and parser for TypeScript and JavaScript. It converts between arrays of objects and RFC 4180-compliant CSV, and runs in Node, browsers, Deno, Bun, and edge runtimes.
+A small, fast, zero-dependency CSV encoder and parser for TypeScript and JavaScript. It converts between arrays of objects and RFC 4180-compliant CSV, with typed streaming in both directions, and runs in Node, browsers, Deno, Bun, and edge runtimes.
 
 **[Documentation](https://martsinlabs.github.io/csv-pipe/)** · [Guide](https://martsinlabs.github.io/csv-pipe/guide/getting-started) · [API](https://martsinlabs.github.io/csv-pipe/api/) · [Benchmarks](https://martsinlabs.github.io/csv-pipe/guide/benchmarks)
 
@@ -44,11 +44,11 @@ The header comes from the record keys, quoting and escaping are correct out of t
 ## Why csv-pipe
 
 - **Typed columns.** Column names are checked against your data, so a typo is a compile error, not a broken export found in production.
-- **Encodes and parses.** `stringify` and `parse` are mirror images, both typed and streaming, so encode then parse round-trips your data unchanged.
+- **Encodes and parses.** `stringify` and `parse` are mirror images, both typed and streaming, so encoding then parsing round-trips your rows, with dynamic typing to recover numbers and booleans.
 - **Runs where your code runs.** The core imports no `fs` and no DOM, and streaming returns a Web `ReadableStream`. One import for Node, the browser, Deno, Bun, and edge.
-- **Flat memory, both ways.** Encode and parse stream incrementally, one record at a time, so a file or HTTP body of any size stays at flat memory.
+- **Flat memory.** Parsing streams one record at a time, and encoding does too once the columns are declared, so a file or an HTTP body of any size stays at flat memory.
 - **Safe by a flag.** `sanitizeFormulas` neutralizes spreadsheet formula injection, so you never hand-sanitize cells.
-- **Fast and small.** The fastest common parser by a wide margin, and the fastest or on-par encoder, across every [benchmark](https://martsinlabs.github.io/csv-pipe/guide/benchmarks), at under 2 kB per direction with zero dependencies.
+- **Fast and small.** The fastest common parser by a wide margin, and the fastest or on-par encoder, across every [benchmark](https://martsinlabs.github.io/csv-pipe/guide/benchmarks), at about 2 kB per direction with zero dependencies.
 
 ## Documentation
 
@@ -56,7 +56,7 @@ The full documentation is at [martsinlabs.github.io/csv-pipe](https://martsinlab
 
 - [Getting started](https://martsinlabs.github.io/csv-pipe/guide/getting-started), [Why csv-pipe](https://martsinlabs.github.io/csv-pipe/guide/why), [Comparison](https://martsinlabs.github.io/csv-pipe/guide/comparison), and [Migration](https://martsinlabs.github.io/csv-pipe/guide/migration)
 - Encoding: [columns](https://martsinlabs.github.io/csv-pipe/guide/columns), [formatting](https://martsinlabs.github.io/csv-pipe/guide/formatting), [streaming](https://martsinlabs.github.io/csv-pipe/guide/streaming), and [options](https://martsinlabs.github.io/csv-pipe/guide/options)
-- [Parsing](https://martsinlabs.github.io/csv-pipe/guide/parsing)
+- Parsing: [overview](https://martsinlabs.github.io/csv-pipe/guide/parsing), [columns](https://martsinlabs.github.io/csv-pipe/guide/parsing-columns), [typing and validation](https://martsinlabs.github.io/csv-pipe/guide/parsing-typing), [streaming and files](https://martsinlabs.github.io/csv-pipe/guide/parsing-streaming), and [options](https://martsinlabs.github.io/csv-pipe/guide/parsing-options)
 - [TypeScript](https://martsinlabs.github.io/csv-pipe/guide/typescript), [error handling](https://martsinlabs.github.io/csv-pipe/guide/errors), and [security](https://martsinlabs.github.io/csv-pipe/guide/security)
 - [Benchmarks](https://martsinlabs.github.io/csv-pipe/guide/benchmarks) and the [API reference](https://martsinlabs.github.io/csv-pipe/api/)
 

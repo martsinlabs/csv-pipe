@@ -18,12 +18,21 @@ export class UnsupportedValueError extends Error {
   }
 }
 
+/** Throw unless `value` is exactly one character, naming the offending option. */
+export function assertSingleChar(value: string, name: string): void {
+  if (value.length !== 1) {
+    throw new CsvPipeError(`The ${name} must be a single character.`);
+  }
+}
+
 const ALLOWED_CELL =
   'a string, number, boolean, bigint, null, undefined, or an array of those';
 
 function describe(value: unknown): string {
   if (typeof value === 'function') return 'a function';
   if (typeof value === 'symbol') return 'a symbol';
+  // Only invalid Dates reach here; valid ones are encoded as ISO strings.
+  if (value instanceof Date) return 'an invalid Date';
   return 'an object';
 }
 

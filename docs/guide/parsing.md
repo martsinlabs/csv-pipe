@@ -48,6 +48,13 @@ parse('a,b\n1'); // [{ a: '1', b: '' }]
 parse('a,b\n1,2,3'); // [{ a: '1', b: '2' }]
 ```
 
+When two header columns share a name, the later column wins, since both map to
+the same object key.
+
+```ts
+parse('a,a\n1,2'); // [{ a: '2' }]
+```
+
 ## Next
 
 - [Choosing columns](./parsing-columns) to select, rename, and position columns.

@@ -1,6 +1,6 @@
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash';
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vitepress';
+import { defineConfig, type MarkdownOptions } from 'vitepress';
 import typedocSidebar from '../api/typedoc-sidebar.json';
 
 const srcRoot = fileURLToPath(new URL('../../src', import.meta.url));
@@ -31,6 +31,9 @@ export default defineConfig({
   sitemap: { hostname: 'https://martsinlabs.github.io/csv-pipe/' },
   markdown: {
     codeTransformers: [
+      // transformerTwoslash is typed against its own @shikijs/types copy, which
+      // differs from the one vitepress bundles; the shapes match at runtime, so
+      // cast to the transformer type vitepress expects.
       transformerTwoslash({
         twoslashOptions: {
           compilerOptions: {
@@ -42,7 +45,7 @@ export default defineConfig({
             }
           }
         }
-      })
+      }) as unknown as NonNullable<MarkdownOptions['codeTransformers']>[number]
     ]
   },
   head: [
@@ -72,12 +75,29 @@ export default defineConfig({
         content: 'https://martsinlabs.github.io/csv-pipe/og.png'
       }
     ],
+    ['meta', { property: 'og:image:type', content: 'image/png' }],
+    ['meta', { property: 'og:image:width', content: '1200' }],
+    ['meta', { property: 'og:image:height', content: '630' }],
+    [
+      'meta',
+      {
+        property: 'og:image:alt',
+        content: 'csv-pipe: typed CSV encode and parse for every runtime'
+      }
+    ],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     [
       'meta',
       {
         name: 'twitter:image',
         content: 'https://martsinlabs.github.io/csv-pipe/og.png'
+      }
+    ],
+    [
+      'meta',
+      {
+        name: 'twitter:image:alt',
+        content: 'csv-pipe: typed CSV encode and parse for every runtime'
       }
     ]
   ],

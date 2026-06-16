@@ -9,9 +9,22 @@ is also exported, so you can catch it precisely.
 
 ## When it throws
 
-A CSV cell must be a string, number, boolean, bigint, `null`, `undefined`, or an
-array of those. A value that cannot be a cell (a plain object, a function, or a
-symbol) throws, and the message names the row and column where it happened.
+`CsvPipeError` is the only error csv-pipe raises by design, on both sides:
+
+**Encoding**
+
+- A value cannot be a cell. A CSV cell must be a string, number, boolean,
+  bigint, `null`, `undefined`, or an array of those. A plain object, a function,
+  a symbol, or an invalid `Date` throws, and the message names the row and
+  column.
+- `separator` or `quote` is not a single character.
+
+**Parsing**
+
+- `separator` or `quote` is not a single character.
+- A `columns` rename map is given without `header: true`.
+- `strict` is on and a row's field count differs from the header. The message
+  names the 1-based source row, where the header is row 1.
 
 ```ts
 import { stringify } from 'csv-pipe';

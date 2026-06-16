@@ -27,6 +27,7 @@ parse('id,active\n42,true', { dynamicTyping: true });
 | `1.50`     | `"1.50"` (string)     | would lose the trailing zero  |
 | `1e3`      | `"1e3"` (string)      | would not round-trip to `1e3` |
 | `Infinity` | `"Infinity"` (string) | not a finite number           |
+| `TRUE`     | `"TRUE"` (string)     | only lowercase `true`/`false` |
 
 Because typing is per field, it is best for known-numeric data. For full control,
 use the row hook below.

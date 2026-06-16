@@ -29,6 +29,10 @@ for await (const record of parser.stream(response.body!)) {
 Options apply to the stream exactly as they do to a full parse, so `header`,
 `columns`, `dynamicTyping`, `separator: 'auto'`, and the rest all work here too.
 
+Stopping early is clean. If you `break` out of the loop or set `maxRows`,
+csv-pipe releases the source: it cancels a Web `ReadableStream` and closes a Node
+file handle, so nothing leaks.
+
 ## Reading a file in Node
 
 `csv-pipe/node` exports `readCsv`, the mirror of `writeCsv`. It reads and parses

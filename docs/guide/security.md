@@ -26,6 +26,10 @@ prefix defaults to a single quote and can be changed with `formulaPrefix`:
 stringify(rows, { sanitizeFormulas: true, formulaPrefix: '\t' });
 ```
 
+On the parsing side a cell that looks like a formula (for example `=1+1`) is
+returned as a plain string; csv-pipe never evaluates it. The guard matters when
+you re-export parsed, untrusted data, so set `sanitizeFormulas` on that export.
+
 ## Reporting a vulnerability
 
 Please report security issues privately through GitHub's

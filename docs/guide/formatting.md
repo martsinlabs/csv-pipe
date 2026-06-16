@@ -34,6 +34,6 @@ stringify(orders, {
 
 ## Non-cell values
 
-A value that cannot be a cell (a plain object, function, or symbol) throws a
-`CsvPipeError` that names the row and column. Use `format` to turn such values
-into something encodable, for example `JSON.stringify`.
+A value that cannot be a cell (a plain object, function, symbol, or an invalid
+`Date`) throws a `CsvPipeError` that names the row and column. Use `format` to
+turn such values into something encodable, for example `JSON.stringify`.

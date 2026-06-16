@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   track:
+    name: Track throughput
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

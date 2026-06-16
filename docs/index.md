@@ -32,8 +32,8 @@ features:
       src: /icons/stream.svg
       width: 28
       height: 28
-    title: Flat memory, both ways
-    details: Encode and parse stream incrementally, one record at a time, so a file or an HTTP body of any size stays at flat memory.
+    title: Flat memory
+    details: Parsing streams one record at a time, and encoding does too once columns are declared, so a file or an HTTP body of any size stays at flat memory.
   - icon:
       src: /icons/safe.svg
       width: 28
@@ -45,13 +45,13 @@ features:
       width: 28
       height: 28
     title: RFC 4180 correct
-    details: Quoting and escaping follow RFC 4180, and encode then parse round-trips your data back unchanged.
+    details: Quoting and escaping follow RFC 4180, so encoding then parsing returns the same rows.
   - icon:
       src: /icons/fast.svg
       width: 28
       height: 28
     title: Fast and small
-    details: The fastest common parser by a wide margin, and the fastest or on-par encoder, across every benchmark, at under 2 kB per direction with zero dependencies.
+    details: The fastest common parser by a wide margin, and the fastest or on-par encoder, across every benchmark, at about 2 kB per direction with zero dependencies.
 ---
 
 <div style="max-width: 960px; margin: 4rem auto 0; padding: 0 24px;">
@@ -89,7 +89,7 @@ const users = parse<User>('name,email,age\nAlex Johnson,alex@example.com,29');
 ```
 
 `parse` is the mirror of `stringify`, typed and streaming, so encode then parse
-round-trips your data. [Get started](/guide/getting-started), read
+round-trips your rows. [Get started](/guide/getting-started), read
 [why csv-pipe](/guide/why), or see the [benchmarks](/guide/benchmarks).
 
 </div>

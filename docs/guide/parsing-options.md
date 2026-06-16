@@ -27,9 +27,11 @@ are below.
 
 ## Separator and quote
 
-`separator` is a single character, or `'auto'` to detect it from the first row.
-Detection considers comma, semicolon, tab, and pipe, and ignores any of them
-inside quotes. It also works while streaming, buffering only the first row.
+`separator` is a single character, or `'auto'` to detect it. Detection reads the
+first line that is neither blank nor a comment, so metadata or comment lines
+above the header never skew it. It considers comma, semicolon, tab, and pipe, and
+ignores any of them inside quotes. It also works while streaming, buffering only
+up to that first line.
 
 ```ts
 parse('a;b\n1;2', { separator: 'auto' });
@@ -72,11 +74,13 @@ parse(' a , b \n 1 , 2 ', { trim: true });
 
 By default parsing is lenient: a short row pads missing fields with `''` and
 extra fields are dropped. `strict` instead throws a `CsvPipeError` naming the row
-whose field count differs from the header.
+whose field count differs from the header. The number is the 1-based row in the
+source, where the header is row 1 (a quoted field spanning newlines counts as one
+row).
 
 ```ts
 parse('a,b\n1', { strict: true });
-// throws CsvPipeError: Row 0 has 1 fields, expected 2.
+// throws CsvPipeError: Row 2 has 1 fields, expected 2.
 ```
 
 ## Limiting and BOM

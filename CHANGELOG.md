@@ -4,6 +4,29 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Separator auto-detection (`separator: 'auto'`) now skips leading blank and
+  comment lines, so a metadata or comment line above the header no longer forces
+  the delimiter to a comma. Applies to both the synchronous and streaming paths.
+- An invalid `Date` cell now throws a located `CsvPipeError` naming the row and
+  column, instead of a bare `RangeError`.
+- The streaming parser releases its source on early exit (a `break` or
+  `maxRows`), cancelling a Web `ReadableStream` and closing a Node file handle.
+- `strict` mode reports the 1-based source row, where the header is row 1.
+
+### Changed
+
+- The encoder rejects a `separator` or `quote` that is not a single character,
+  matching the parser, with a `CsvPipeError`.
+
+### Tooling
+
+- Added a real-world corpus test: thousands of deterministic quirk cases plus
+  property-based round-trip against an RFC 4180 oracle and papaparse.
+
 ## 2.0.0 - 2026-06-04
 
 A complete rewrite into a fast, deterministic, RFC 4180-compliant CSV encoder and parser.

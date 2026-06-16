@@ -6,16 +6,13 @@
     "csv",
     "rfc4180",
     "stringify",
-    "parse",
     "parser",
     "encode",
     "decode",
-    "data",
     "export",
     "convert",
     "transform",
-    "stream",
-    "typescript"
+    "stream"
   ],
   "homepage": "https://github.com/martsinlabs/csv-pipe#readme",
   "bugs": {
@@ -96,6 +93,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "og": "node scripts/og.mjs",
+    "og:linkedin": "node scripts/og-linkedin.mjs",
     "prepublishOnly": "npm run build",
     "size": "npm run build && size-limit",
     "smoke": "node scripts/smoke.mjs",

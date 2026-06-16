@@ -15,11 +15,11 @@
     "name": "parse (tree-shaken)",
     "path": "dist/index.js",
     "import": "{ parse }",
-    "limit": "2 kB"
+    "limit": "2.25 kB"
   },
   {
     "name": "full entry",
     "path": "dist/index.js",
-    "limit": "3.5 kB"
+    "limit": "3.75 kB"
   }
 ]

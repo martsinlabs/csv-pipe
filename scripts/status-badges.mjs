@@ -22,4 +22,4 @@ const sizes = JSON.parse(readFileSync('size.json', 'utf8'));
 const fullEntry =
   sizes.find((entry) => entry.name === 'full entry') ?? sizes[0];
 const kilobytes = (fullEntry.size / 1024).toFixed(2);
-writeBadge('size-badge.json', 'min+brotli', `${kilobytes} kB`, 'brightgreen');
+writeBadge('size-badge.json', 'min+brotli', `${kilobytes} kB`, 'blue');

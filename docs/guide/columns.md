@@ -22,6 +22,11 @@ stringify(users, { columns: { name: 'Full name', email: 'Email address' } });
 Without `columns`, the columns are the stable union of every record's keys, in
 first-seen order, so reordered or partial records never shift.
 
+A map orders columns by JavaScript object key order: integer-like keys (`"0"`,
+`"1"`, ...) come first in ascending numeric order, then the rest in insertion
+order. If your keys are integer-like and the order matters, use the array form,
+which always keeps the order you write.
+
 ::: tip
 A missing key and an explicit `undefined` are treated the same. Declaring
 `columns` also makes [streaming](./streaming) fully incremental, since the header
