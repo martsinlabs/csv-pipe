@@ -68,4 +68,28 @@ describe('separator auto-detect', () => {
       { a: '3', b: '4' }
     ]);
   });
+
+  it('skips a leading comment line before detecting', () => {
+    expect(
+      parse('# generated\na;b\n1;2', { separator: 'auto', comment: '#' })
+    ).toEqual([{ a: '1', b: '2' }]);
+  });
+
+  it('skips a leading blank line before detecting', () => {
+    expect(parse('\na;b\n1;2', { separator: 'auto' })).toEqual([
+      { a: '1', b: '2' }
+    ]);
+  });
+
+  it('skips a whitespace-only line before detecting when greedy', () => {
+    expect(
+      parse('   \na;b\n1;2', { separator: 'auto', skipEmptyLines: 'greedy' })
+    ).toEqual([{ a: '1', b: '2' }]);
+  });
+
+  it('skips leading comment lines before detecting in a stream', async () => {
+    const parser = createCsvParser({ separator: 'auto', comment: '#' });
+    const rows = await collect(parser.stream(['# c', 'omment\na;', 'b\n1;2']));
+    expect(rows).toEqual([{ a: '1', b: '2' }]);
+  });
 });

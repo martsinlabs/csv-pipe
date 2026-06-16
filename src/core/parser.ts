@@ -1,4 +1,4 @@
-import { CsvPipeError } from '../errors';
+import { assertSingleChar, CsvPipeError } from '../errors';
 import type {
   CsvParsedValue,
   CsvParseOptions,
@@ -17,9 +17,7 @@ const CR = 13;
 const SEPARATOR_CANDIDATES = [44, 59, 9, 124];
 
 function singleCharCode(value: string, name: string): number {
-  if (value.length !== 1) {
-    throw new CsvPipeError(`The ${name} must be a single character.`);
-  }
+  assertSingleChar(value, name);
   return value.charCodeAt(0);
 }
 
@@ -49,18 +47,36 @@ function isWhitespace(row: readonly string[]): boolean {
   return true;
 }
 
-/** Pick the separator with the most occurrences in the first row of `sample`. */
-function detectSeparator(sample: string, quoteCode: number): number {
+/**
+ * Whether a physical line is ignored when detecting the separator, so leading
+ * blank or comment lines never decide the delimiter. Mirrors the parser's own
+ * skip rules for the common (untrimmed) case.
+ */
+function isSkippableLine(
+  line: string,
+  skipEmpty: boolean,
+  greedy: boolean,
+  comment: string | undefined
+): boolean {
+  if (comment !== undefined && line.startsWith(comment)) return true;
+  if (!skipEmpty) return false;
+  return greedy ? line.trim() === '' : line === '';
+}
+
+/**
+ * Count separator candidates outside quotes in one line and return the most
+ * frequent. Falls back to comma when the line holds none (a single-column line).
+ */
+function countSeparators(line: string, quoteCode: number): number {
   const counts = [0, 0, 0, 0];
   let inQuotes = false;
-  for (let index = 0; index < sample.length; index += 1) {
-    const code = sample.charCodeAt(index);
+  for (let index = 0; index < line.length; index += 1) {
+    const code = line.charCodeAt(index);
     if (code === quoteCode) {
       inQuotes = !inQuotes;
       continue;
     }
     if (inQuotes) continue;
-    if (code === LF || code === CR) break;
     const candidate = SEPARATOR_CANDIDATES.indexOf(code);
     if (candidate >= 0) counts[candidate] = counts[candidate]! + 1;
   }
@@ -73,14 +89,55 @@ function detectSeparator(sample: string, quoteCode: number): number {
     : SEPARATOR_CANDIDATES[0]!;
 }
 
-function hasRowBreakOutsideQuotes(text: string, quoteCode: number): boolean {
+/**
+ * Detect the separator from the first line that is neither blank nor a comment,
+ * so metadata or blank lines above the header never skew the result. Candidates
+ * are comma, semicolon, tab, and pipe; any inside quotes are ignored.
+ *
+ * Returns `null` when no usable line is available yet. With `requireComplete` a
+ * line counts only once a row break closes it, which lets the streaming path
+ * keep buffering until it has a full line to judge.
+ */
+function detectSeparator(
+  sample: string,
+  quoteCode: number,
+  skipEmpty: boolean,
+  greedy: boolean,
+  comment: string | undefined,
+  requireComplete: boolean
+): number | null {
+  const length = sample.length;
+  let lineStart = 0;
   let inQuotes = false;
-  for (let index = 0; index < text.length; index += 1) {
-    const code = text.charCodeAt(index);
-    if (code === quoteCode) inQuotes = !inQuotes;
-    else if (!inQuotes && (code === LF || code === CR)) return true;
+  let index = 0;
+  while (index < length) {
+    const code = sample.charCodeAt(index);
+    if (code === quoteCode) {
+      inQuotes = !inQuotes;
+      index += 1;
+      continue;
+    }
+    if (!inQuotes && (code === LF || code === CR)) {
+      const line = sample.slice(lineStart, index);
+      if (!isSkippableLine(line, skipEmpty, greedy, comment)) {
+        return countSeparators(line, quoteCode);
+      }
+      if (code === CR && sample.charCodeAt(index + 1) === LF) index += 1;
+      index += 1;
+      lineStart = index;
+      continue;
+    }
+    index += 1;
   }
-  return false;
+  // The trailing line has no closing break. Judge it only when the caller holds
+  // the whole input (sync), not mid-stream where more may still arrive.
+  if (!requireComplete && !inQuotes) {
+    const line = sample.slice(lineStart);
+    if (!isSkippableLine(line, skipEmpty, greedy, comment)) {
+      return countSeparators(line, quoteCode);
+    }
+  }
+  return null;
 }
 
 /**
@@ -101,16 +158,23 @@ async function* toChunks(
   const maybeStream = source as ReadableStream<string | Uint8Array>;
   if (typeof maybeStream.getReader === 'function') {
     const reader = maybeStream.getReader();
+    let drained = false;
     try {
       for (;;) {
         const { value, done } = await reader.read();
-        if (done) break;
+        if (done) {
+          drained = true;
+          break;
+        }
         if (value === undefined) continue;
         yield typeof value === 'string'
           ? value
           : decoder.decode(value, { stream: true });
       }
     } finally {
+      // On early exit (the consumer stopped, or maxRows was reached) cancel the
+      // stream so the underlying source is released, not merely unlocked.
+      if (!drained) await reader.cancel().catch(() => {});
       reader.releaseLock();
     }
     const tail = decoder.decode();
@@ -190,8 +254,10 @@ export function createCsvParser<T = CsvRecord>(
       : undefined;
     let headerPending = header;
     let rowIndex = 0;
+    let sourceRow = 0;
 
     return (row: string[]): T | typeof SKIP => {
+      sourceRow += 1;
       if (trim) {
         for (let index = 0; index < row.length; index += 1) {
           row[index] = row[index]!.trim();
@@ -212,7 +278,7 @@ export function createCsvParser<T = CsvRecord>(
 
       if (strict && row.length !== keys.length) {
         throw new CsvPipeError(
-          `Row ${rowIndex} has ${row.length} fields, expected ${keys.length}.`
+          `Row ${sourceRow} has ${row.length} fields, expected ${keys.length}.`
         );
       }
       const record: CsvRecord = {};
@@ -234,7 +300,8 @@ export function createCsvParser<T = CsvRecord>(
     let text = input;
     if (stripBom && text.charCodeAt(0) === 0xfeff) text = text.slice(1);
     const separator = autoSeparator
-      ? detectSeparator(text, quoteCode)
+      ? (detectSeparator(text, quoteCode, skipEmpty, greedy, comment, false) ??
+        SEPARATOR_CANDIDATES[0]!)
       : separatorCode;
 
     const process = makeProcessor();
@@ -253,53 +320,79 @@ export function createCsvParser<T = CsvRecord>(
     if (maxRows <= 0) return;
     const process = makeProcessor();
     const iterator = toChunks(source, !stripBom)[Symbol.asyncIterator]();
-    let count = 0;
-    let separator = separatorCode;
-    let bomPending = stripBom;
-    let buffered = '';
+    // Close the source on any exit, including an early `return` here or the
+    // consumer breaking out, so a file handle or stream reader never leaks.
+    try {
+      let count = 0;
+      let separator = separatorCode;
+      let bomPending = stripBom;
+      let buffered = '';
 
-    const stripFirst = (chunk: string): string => {
-      if (!bomPending) return chunk;
-      bomPending = false;
-      return chunk.charCodeAt(0) === 0xfeff ? chunk.slice(1) : chunk;
-    };
+      const stripFirst = (chunk: string): string => {
+        if (!bomPending) return chunk;
+        bomPending = false;
+        return chunk.charCodeAt(0) === 0xfeff ? chunk.slice(1) : chunk;
+      };
 
-    // Detect the separator from the first row before building the tokenizer.
-    if (autoSeparator) {
+      // Detect the separator before building the tokenizer, buffering chunks
+      // until the first non-blank, non-comment line is complete enough to judge.
+      if (autoSeparator) {
+        let detected: number | null = null;
+        for (;;) {
+          const { value, done } = await iterator.next();
+          if (done) {
+            detected = detectSeparator(
+              buffered,
+              quoteCode,
+              skipEmpty,
+              greedy,
+              comment,
+              false
+            );
+            break;
+          }
+          buffered += stripFirst(value);
+          detected = detectSeparator(
+            buffered,
+            quoteCode,
+            skipEmpty,
+            greedy,
+            comment,
+            true
+          );
+          if (detected !== null) break;
+        }
+        separator = detected ?? SEPARATOR_CANDIDATES[0]!;
+      }
+
+      const tokenizer = createRowTokenizer(separator, quoteCode);
+      const drain = function* (rows: string[][]): Generator<T> {
+        for (const row of rows) {
+          const result = process(row);
+          if (result !== SKIP) yield result;
+        }
+      };
+
+      if (buffered) {
+        for (const record of drain(tokenizer.push(buffered))) {
+          yield record;
+          if (++count >= maxRows) return;
+        }
+      }
       for (;;) {
         const { value, done } = await iterator.next();
         if (done) break;
-        buffered += stripFirst(value);
-        if (hasRowBreakOutsideQuotes(buffered, quoteCode)) break;
+        for (const record of drain(tokenizer.push(stripFirst(value)))) {
+          yield record;
+          if (++count >= maxRows) return;
+        }
       }
-      separator = detectSeparator(buffered, quoteCode);
-    }
-
-    const tokenizer = createRowTokenizer(separator, quoteCode);
-    const drain = function* (rows: string[][]): Generator<T> {
-      for (const row of rows) {
-        const result = process(row);
-        if (result !== SKIP) yield result;
-      }
-    };
-
-    if (buffered) {
-      for (const record of drain(tokenizer.push(buffered))) {
+      for (const record of drain(tokenizer.end())) {
         yield record;
         if (++count >= maxRows) return;
       }
-    }
-    for (;;) {
-      const { value, done } = await iterator.next();
-      if (done) break;
-      for (const record of drain(tokenizer.push(stripFirst(value)))) {
-        yield record;
-        if (++count >= maxRows) return;
-      }
-    }
-    for (const record of drain(tokenizer.end())) {
-      yield record;
-      if (++count >= maxRows) return;
+    } finally {
+      await iterator.return?.();
     }
   }
 

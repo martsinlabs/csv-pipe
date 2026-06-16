@@ -25,7 +25,13 @@ function coercePrimitive(value: unknown, options: ResolvedCsvOptions): string {
       if (value === -Infinity) return `-${options.infinityText}`;
       return String(value);
     default:
-      if (value instanceof Date) return value.toISOString();
+      if (value instanceof Date) {
+        // An invalid Date has no ISO form; surface it as a located cell error
+        // rather than letting toISOString throw a bare RangeError.
+        if (Number.isNaN(value.getTime()))
+          throw new UnsupportedValueError(value);
+        return value.toISOString();
+      }
       throw new UnsupportedValueError(value);
   }
 }

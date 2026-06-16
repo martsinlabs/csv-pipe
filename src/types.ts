@@ -54,8 +54,10 @@ export type CsvFormatter = (
  * Column selection for a record type `T`.
  *
  * - An array of keys selects and orders columns; each key is also its header.
- * - A map of key to label selects and orders columns (by insertion order) and
- *   sets the header label for each.
+ * - A map of key to label selects columns and sets each header. Order follows
+ *   JavaScript object key order: integer-like keys (`"0"`, `"1"`, ...) come
+ *   first in ascending numeric order, then the rest in insertion order. Use the
+ *   array form when integer-like keys must keep a specific order.
  *
  * Keys are constrained to `keyof T`, so a typo is a compile error.
  */
@@ -180,7 +182,9 @@ export interface CsvParseOptions<T = CsvRecord> {
   /**
    * Coerce field text to `number` or `boolean` when it round-trips exactly
    * (so `"007"` and `"1.50"` stay strings). Only finite numbers are coerced, so
-   * `"Infinity"`, `"-Infinity"`, and `"NaN"` stay strings. Default `false`.
+   * `"Infinity"`, `"-Infinity"`, and `"NaN"` stay strings. Booleans coerce only
+   * for the exact lowercase `"true"` and `"false"`, matching the encoder's
+   * default, so `"TRUE"` or `"Yes"` stay strings. Default `false`.
    */
   dynamicTyping?: boolean;
   /** Throw on a row whose field count differs from the header. Default `false`. */

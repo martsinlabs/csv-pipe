@@ -1,3 +1,4 @@
+import { assertSingleChar } from '../errors';
 import type {
   BooleanStyle,
   CsvFormatOptions,
@@ -67,6 +68,10 @@ export function resolveOptions(
 ): ResolvedCsvOptions {
   const separator = options.separator ?? DEFAULT_OPTIONS.separator;
   const quote = options.quote ?? DEFAULT_OPTIONS.quote;
+  // The separator and quote frame every field, so they must be one character,
+  // matching the parser and keeping output round-trippable.
+  assertSingleChar(separator, 'separator');
+  assertSingleChar(quote, 'quote');
 
   return {
     showHeaders: options.showHeaders ?? DEFAULT_OPTIONS.showHeaders,

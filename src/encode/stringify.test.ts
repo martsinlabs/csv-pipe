@@ -72,12 +72,33 @@ describe('stringify with unsupported cell values', () => {
       'Cannot encode a function at row 0, column "tags"'
     );
   });
+
+  it('names an invalid Date with its row and column', () => {
+    expect(() => stringify([{ at: new Date('not-a-date') }])).toThrow(
+      CsvPipeError
+    );
+    expect(() => stringify([{ at: new Date('not-a-date') }])).toThrow(
+      'Cannot encode an invalid Date at row 0, column "at"'
+    );
+  });
 });
 
 describe('stringify formatting options', () => {
   it('renders a Date as an ISO string by default', () => {
     const at = new Date('2026-06-04T10:00:00.000Z');
     expect(stringify([{ at }])).toBe('at\r\n2026-06-04T10:00:00.000Z');
+  });
+
+  it('rejects a separator or quote that is not a single character', () => {
+    expect(() => stringify([{ a: 1 }], { separator: '||' })).toThrow(
+      CsvPipeError
+    );
+    expect(() => stringify([{ a: 1 }], { separator: '' })).toThrow(
+      'The separator must be a single character.'
+    );
+    expect(() => stringify([{ a: 1 }], { quote: '' })).toThrow(
+      'The quote must be a single character.'
+    );
   });
 
   it('applies the format hook to each value', () => {

@@ -117,4 +117,47 @@ describe('parser.stream', () => {
     );
     expect(rows).toEqual([['a'], ['b'], ['c']]);
   });
+
+  it('closes the source when the consumer stops early', async () => {
+    let cleanedUp = false;
+    async function* source(): AsyncGenerator<string> {
+      try {
+        yield 'a,b\n1,2\n';
+        yield '3,4\n5,6\n';
+        yield '7,8\n';
+      } finally {
+        cleanedUp = true;
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for await (const _ of createCsvParser().stream(source())) break;
+    expect(cleanedUp).toBe(true);
+  });
+
+  it('closes the source when maxRows is reached', async () => {
+    let cleanedUp = false;
+    async function* source(): AsyncGenerator<string> {
+      try {
+        yield 'a,b\n1,2\n3,4\n5,6\n';
+      } finally {
+        cleanedUp = true;
+      }
+    }
+    await collect(createCsvParser({ maxRows: 1 }).stream(source()));
+    expect(cleanedUp).toBe(true);
+  });
+
+  it('cancels a Web ReadableStream on early exit', async () => {
+    let cancelled = false;
+    const stream = new ReadableStream<string>({
+      start(controller) {
+        controller.enqueue('a,b\n1,2\n3,4\n5,6\n');
+      },
+      cancel() {
+        cancelled = true;
+      }
+    });
+    await collect(createCsvParser({ maxRows: 1 }).stream(stream));
+    expect(cancelled).toBe(true);
+  });
 });
