@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781629333314,
+  "lastUpdate": 1781629388398,
   "repoUrl": "https://github.com/martsinlabs/csv-pipe",
   "entries": {
     "csv-pipe throughput": [
@@ -127,6 +127,70 @@ window.BENCHMARK_DATA = {
           {
             "name": "parse: quote-heavy (5k x 3)",
             "value": 628,
+            "unit": "ops/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "myroslav@martsinlabs.com",
+            "name": "Myroslav Martsin",
+            "username": "myromartsin"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f8664706a7815ae34466dd6613da27728f035206",
+          "message": "Merge pull request #30 from martsinlabs/dependabot/github_actions/actions/checkout-6\n\nbuild(deps): bump actions/checkout from 4 to 6",
+          "timestamp": "2026-06-16T12:01:52-05:00",
+          "tree_id": "f89565c3c00cb34692c776dba0f761e253e9a27f",
+          "url": "https://github.com/martsinlabs/csv-pipe/commit/f8664706a7815ae34466dd6613da27728f035206"
+        },
+        "date": 1781629387145,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "encode: small (1k x 3)",
+            "value": 5302,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "encode: wide (1k x 20)",
+            "value": 622,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "encode: large (50k x 3)",
+            "value": 66,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "encode: quote-heavy (5k x 3)",
+            "value": 454,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: small (1k x 3)",
+            "value": 6137,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: wide (1k x 20)",
+            "value": 657,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: large (50k x 3)",
+            "value": 55,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: quote-heavy (5k x 3)",
+            "value": 773,
             "unit": "ops/sec"
           }
         ]
