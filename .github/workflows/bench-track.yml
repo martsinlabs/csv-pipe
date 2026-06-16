@@ -17,7 +17,7 @@ jobs:
   track:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # github-action-benchmark fetches gh-pages and fails if it does not exist.
       # Create an empty one first (in a temp dir, leaving the checkout untouched)
