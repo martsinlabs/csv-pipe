@@ -4,7 +4,7 @@
 
 A small, fast, zero-dependency CSV encoder and parser for TypeScript and JavaScript. It converts between arrays of objects and RFC 4180-compliant CSV, with typed streaming in both directions, and runs in Node, browsers, Deno, Bun, and edge runtimes.
 
-**[Documentation](https://martsinlabs.github.io/csv-pipe/)** · [Guide](https://martsinlabs.github.io/csv-pipe/guide/getting-started) · [API](https://martsinlabs.github.io/csv-pipe/api/) · [Benchmarks](https://martsinlabs.github.io/csv-pipe/guide/benchmarks)
+**[Documentation](https://martsinlabs.github.io/csv-pipe/)** · [Guide](https://martsinlabs.github.io/csv-pipe/guide/getting-started) · [API](https://martsinlabs.github.io/csv-pipe/api/) · [Benchmarks](https://martsinlabs.github.io/csv-pipe/guide/benchmarks) · [Conformance](https://martsinlabs.github.io/csv-pipe/guide/conformance)
 
 ## Install
 
@@ -58,7 +58,7 @@ The full documentation is at [martsinlabs.github.io/csv-pipe](https://martsinlab
 - Encoding: [columns](https://martsinlabs.github.io/csv-pipe/guide/columns), [formatting](https://martsinlabs.github.io/csv-pipe/guide/formatting), [streaming](https://martsinlabs.github.io/csv-pipe/guide/streaming), and [options](https://martsinlabs.github.io/csv-pipe/guide/options)
 - Parsing: [overview](https://martsinlabs.github.io/csv-pipe/guide/parsing), [columns](https://martsinlabs.github.io/csv-pipe/guide/parsing-columns), [typing and validation](https://martsinlabs.github.io/csv-pipe/guide/parsing-typing), [streaming and files](https://martsinlabs.github.io/csv-pipe/guide/parsing-streaming), and [options](https://martsinlabs.github.io/csv-pipe/guide/parsing-options)
 - [TypeScript](https://martsinlabs.github.io/csv-pipe/guide/typescript), [error handling](https://martsinlabs.github.io/csv-pipe/guide/errors), and [security](https://martsinlabs.github.io/csv-pipe/guide/security)
-- [Benchmarks](https://martsinlabs.github.io/csv-pipe/guide/benchmarks) and the [API reference](https://martsinlabs.github.io/csv-pipe/api/)
+- [Benchmarks](https://martsinlabs.github.io/csv-pipe/guide/benchmarks), [Conformance](https://martsinlabs.github.io/csv-pipe/guide/conformance), and the [API reference](https://martsinlabs.github.io/csv-pipe/api/)
 
 ## Contributing
 

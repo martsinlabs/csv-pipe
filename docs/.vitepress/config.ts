@@ -154,6 +154,7 @@ export default defineConfig({
           text: 'Reference',
           items: [
             { text: 'Benchmarks', link: '/guide/benchmarks' },
+            { text: 'Conformance', link: '/guide/conformance' },
             { text: 'Examples', link: '/guide/examples' }
           ]
         }

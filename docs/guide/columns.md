@@ -8,18 +8,29 @@ One `columns` option selects, orders, and labels columns. Keys are checked
 against your type, so a typo will not compile.
 
 ```ts
+import { stringify } from 'csv-pipe';
+
+type User = { name: string; email: string; age: number };
+
+const users: User[] = [
+  { name: 'Alex Johnson', email: 'alex@example.com', age: 29 },
+  { name: 'Carlos Herrera', email: 'carlos@example.com', age: 24 }
+];
+
 // An array of keys: each key is also its header.
 stringify(users, { columns: ['name', 'email'] });
 // name,email
 // Alex Johnson,alex@example.com
+// Carlos Herrera,carlos@example.com
 
 // A map of key to label: also sets the header text.
 stringify(users, { columns: { name: 'Full name', email: 'Email address' } });
 // Full name,Email address
 // Alex Johnson,alex@example.com
+// Carlos Herrera,carlos@example.com
 ```
 
-Without `columns`, the columns are the stable union of every record's keys, in
+Without `columns`, the columns are the stable union of all record keys, in
 first-seen order, so reordered or partial records never shift.
 
 A map orders columns by JavaScript object key order: integer-like keys (`"0"`,

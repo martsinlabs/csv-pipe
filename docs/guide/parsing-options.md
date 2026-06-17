@@ -35,7 +35,7 @@ up to that first line.
 
 ```ts
 parse('a;b\n1;2', { separator: 'auto' });
-// [{ a: '1', b: '2' }] — detects ; from , ; tab |
+// [{ a: '1', b: '2' }]  (; detected among the candidates , ; tab |)
 ```
 
 `quote` sets the quote character (default `"`). Doubled quotes inside a quoted

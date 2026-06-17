@@ -3,7 +3,7 @@
 // file of any size is never fully loaded.
 import { readCsv } from 'csv-pipe/node';
 
-type User = { name: string; email: string; age: string };
+type User = { name: string; email: string; age: number };
 
 for await (const user of readCsv<User>('users.csv')) {
   // one record at a time

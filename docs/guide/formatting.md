@@ -10,7 +10,14 @@ value and its location, and returns whatever should be encoded; return the value
 unchanged to pass it through.
 
 ```ts
+import { stringify } from 'csv-pipe';
+
 type Order = { id: number; total: number; placedAt: Date };
+
+const orders: Order[] = [
+  { id: 1, total: 19.5, placedAt: new Date('2026-06-04T10:00:00Z') },
+  { id: 2, total: 4, placedAt: new Date('2026-06-05T12:30:00Z') }
+];
 
 stringify(orders, {
   format: (value) => (typeof value === 'number' ? value.toFixed(2) : value)

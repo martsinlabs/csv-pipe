@@ -19,7 +19,9 @@ import { stringify } from 'csv-pipe';
 
 type User = { name: string; email: string; age: number };
 
-const users: User[] = [{ name: 'Ada', email: 'ada@example.com', age: 36 }];
+const users: User[] = [
+  { name: 'Alex Johnson', email: 'alex@example.com', age: 29 }
+];
 
 const csv = stringify(users);
 //    ^?
@@ -34,7 +36,9 @@ A key that does not exist is a compile error.
 // @errors: 2820
 import { stringify } from 'csv-pipe';
 type User = { name: string; email: string; age: number };
-const users: User[] = [{ name: 'Ada', email: 'ada@example.com', age: 36 }];
+const users: User[] = [
+  { name: 'Alex Johnson', email: 'alex@example.com', age: 29 }
+];
 // ---cut---
 stringify(users, { columns: ['name', 'emial'] });
 ```
@@ -50,7 +54,9 @@ instead of producing a file with an empty column.
 ```ts twoslash
 import { createCsvEncoder } from 'csv-pipe';
 type User = { name: string; email: string; age: number };
-const users: User[] = [{ name: 'Ada', email: 'ada@example.com', age: 36 }];
+const users: User[] = [
+  { name: 'Alex Johnson', email: 'alex@example.com', age: 29 }
+];
 // ---cut---
 const toCsv = createCsvEncoder<User>({ columns: ['name', 'email'] });
 
