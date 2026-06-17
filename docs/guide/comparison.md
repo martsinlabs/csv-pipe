@@ -20,8 +20,8 @@ the attributes that differ; throughput is covered on the
 | Fastest at parsing (wide margin)  | Yes                            | No             | No                        | No             |
 | Fastest or on par at encoding     | Yes                            | No             | No                        | No             |
 
-Attributes other than throughput reflect each library's documented behavior and
-may change between versions; check the current docs of each.
+Attributes other than throughput reflect the documented behavior of each library
+and may change between versions; check the current docs of each.
 
 ## When to choose csv-pipe
 

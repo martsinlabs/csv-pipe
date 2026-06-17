@@ -23,8 +23,8 @@ is also exported, so you can catch it precisely.
 
 - `separator` or `quote` is not a single character.
 - A `columns` rename map is given without `header: true`.
-- `strict` is on and a row's field count differs from the header. The message
-  names the 1-based source row, where the header is row 1.
+- `strict` is on and the field count of a row differs from the header. The
+  message names the 1-based source row, where the header is row 1.
 
 ```ts
 import { stringify } from 'csv-pipe';
@@ -42,13 +42,15 @@ Catch `CsvPipeError` to distinguish it from other failures.
 ```ts
 import { stringify, CsvPipeError } from 'csv-pipe';
 
-try {
-  return stringify(rows);
-} catch (error) {
-  if (error instanceof CsvPipeError) {
-    // a cell value was not encodable; the message names the row and column
+function toCsv(rows: object[]): string {
+  try {
+    return stringify(rows);
+  } catch (error) {
+    if (error instanceof CsvPipeError) {
+      // a cell value was not encodable; the message names the row and column
+    }
+    throw error;
   }
-  throw error;
 }
 ```
 
@@ -58,10 +60,14 @@ Use the [`format`](./formatting) hook to turn rich values into something
 encodable before they reach a cell, for example serializing nested objects:
 
 ```ts
-stringify(rows, {
+import { stringify } from 'csv-pipe';
+
+stringify([{ id: 1, meta: { active: true } }], {
   format: (value) =>
     value !== null && typeof value === 'object' && !Array.isArray(value)
       ? JSON.stringify(value)
       : value
 });
+// id,meta
+// 1,"{""active"":true}"
 ```

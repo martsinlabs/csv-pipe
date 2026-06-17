@@ -16,7 +16,7 @@ function* rows(count: number): Generator<Row> {
 // The simple path: encode and write in one call.
 await writeCsv('squares.csv', rows(100_000), { columns: ['id', 'value'] });
 
-// The explicit path: turn the encoder's chunk stream into a Node Readable.
+// The explicit path: build a Node Readable from the chunk stream yourself.
 const encoder = createCsvEncoder<Row>({ columns: ['id', 'value'] });
 const readable = Readable.from(encoder.stream(rows(100_000)));
 readable.pipe(createWriteStream('squares-explicit.csv'));

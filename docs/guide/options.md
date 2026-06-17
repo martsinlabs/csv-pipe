@@ -76,7 +76,10 @@ Some spreadsheet apps need a byte-order mark to read UTF-8 correctly. `bom`
 prepends one.
 
 ```ts
-stringify(rows, { bom: true });
+stringify([{ a: 1, b: 'x' }], { bom: true });
+// a UTF-8 BOM, then:
+// a,b
+// 1,x
 ```
 
 ### Custom booleans and empty values

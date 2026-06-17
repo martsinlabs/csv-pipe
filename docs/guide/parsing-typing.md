@@ -36,8 +36,8 @@ use the row hook below.
 
 For real runtime safety, pass a `row` hook. It receives each raw record and
 returns the final element, so a schema library or a hand-written guard enforces
-the type. This is the parsing analogue of the encoder's
-[`format`](./formatting) hook.
+the type. This is the parsing analogue of the
+[`format`](./formatting) hook on the encoder.
 
 ```ts
 import { parse } from 'csv-pipe';
@@ -48,8 +48,8 @@ const users = parse('id\n1\n2', {
 // [{ id: 1 }, { id: 2 }]
 ```
 
-The hook also receives a context with the record's zero-based `rowIndex`, useful
-for error messages:
+The hook also receives a context with the zero-based `rowIndex` of the record,
+useful for error messages:
 
 ```ts
 parse('email\na@b.com', {

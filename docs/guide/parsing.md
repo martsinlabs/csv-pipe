@@ -15,9 +15,9 @@ By default the first row is the header, and each record is a typed object.
 ```ts twoslash
 import { parse } from 'csv-pipe';
 
-type User = { name: string; email: string };
+type User = { name: string; email: string; age: number };
 
-const users = parse<User>('name,email\nAda,ada@example.com');
+const users = parse<User>('name,email,age\nAlex Johnson,alex@example.com,29');
 //    ^?
 ```
 

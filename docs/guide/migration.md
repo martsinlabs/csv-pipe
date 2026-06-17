@@ -10,7 +10,7 @@ keys, so many call sites need nothing more. This page covers encoding; parsing
 maps the same way (`Papa.parse`, `csv-parse`, and `parseStream` to `parse` and
 `createCsvParser`), with the [parsing options](./parsing-options) as the target.
 
-Option names below reflect each library's documented behavior and may change
+Option names below reflect the documented behavior of each library and may change
 between versions; check the current docs of each.
 
 ## From papaparse
