@@ -42,6 +42,7 @@ export function downloadCsv<T extends object>(
     anchor.click();
     anchor.remove();
   } finally {
-    URL.revokeObjectURL(url);
+    // Revoke on the next tick so the browser can read the blob before it is freed.
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 }

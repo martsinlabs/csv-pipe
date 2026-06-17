@@ -5,9 +5,11 @@ import { downloadCsv } from './browser';
 describe('downloadCsv', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
-  it('encodes, triggers a download, and revokes the object URL', () => {
+  it('encodes, triggers a download, and revokes the object URL after the click', () => {
+    vi.useFakeTimers();
     const createObjectURL = vi
       .spyOn(URL, 'createObjectURL')
       .mockReturnValue('blob:fake');
@@ -27,6 +29,9 @@ describe('downloadCsv', () => {
     expect(createObjectURL).toHaveBeenCalledOnce();
     expect(click).toHaveBeenCalledOnce();
     expect(downloadName).toBe('people.csv');
+    // Revoke is deferred so the browser can read the blob first.
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+    vi.runAllTimers();
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:fake');
   });
 });
