@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      # Required for npm provenance via OIDC.
+      # Required for OIDC trusted publishing and provenance.
       id-token: write
     steps:
       - uses: actions/checkout@v6
@@ -23,6 +23,10 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
           cache: npm
+
+      # Trusted publishing over OIDC (no token) needs npm 11.5.1 or newer.
+      - name: Use a recent npm
+        run: npm install -g npm@latest
 
       - run: npm ci
 
@@ -38,10 +42,10 @@ jobs:
       - name: Verify package
         run: npm run check:package
 
+      # Authenticated by the OIDC trusted publisher configured on npm, so no
+      # token is needed. Provenance is attached automatically.
       - name: Publish to npm
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub release
         env:
