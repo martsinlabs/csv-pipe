@@ -1,6 +1,6 @@
 {
   "name": "csv-pipe",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A small, fast, zero-dependency CSV encoder and parser for TypeScript and JavaScript. It converts between arrays of objects and RFC 4180-compliant CSV, with typed streaming in both directions, and runs in Node, browsers, Deno, Bun, and edge runtimes.",
   "keywords": [
     "csv",

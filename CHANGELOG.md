@@ -4,30 +4,7 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-
-### Fixed
-
-- Separator auto-detection (`separator: 'auto'`) now skips leading blank and
-  comment lines, so a metadata or comment line above the header no longer forces
-  the delimiter to a comma. Applies to both the synchronous and streaming paths.
-- An invalid `Date` cell now throws a located `CsvPipeError` naming the row and
-  column, instead of a bare `RangeError`.
-- The streaming parser releases its source on early exit (a `break` or
-  `maxRows`), cancelling a Web `ReadableStream` and closing a Node file handle.
-- `strict` mode reports the 1-based source row, where the header is row 1.
-
-### Changed
-
-- The encoder rejects a `separator` or `quote` that is not a single character,
-  matching the parser, with a `CsvPipeError`.
-
-### Tooling
-
-- Added a real-world corpus test: thousands of deterministic quirk cases plus
-  property-based round-trip against an RFC 4180 oracle and papaparse.
-
-## 2.0.0 - 2026-06-04
+## 2.1.0 - 2026-06-17
 
 A complete rewrite into a fast, deterministic, RFC 4180-compliant CSV encoder and parser.
 
@@ -68,6 +45,8 @@ A complete rewrite into a fast, deterministic, RFC 4180-compliant CSV encoder an
   separator, a quote, CR, or LF (previously every field was quoted).
 - Columns are the stable union of record keys, and a missing key and an explicit
   `undefined` are treated the same.
+- The encoder rejects a `separator` or `quote` that is not a single character,
+  matching the parser, with a `CsvPipeError`.
 
 ### Removed
 
@@ -81,6 +60,14 @@ A complete rewrite into a fast, deterministic, RFC 4180-compliant CSV encoder an
 - No empty header row with the default configuration.
 - A deterministic core with no import-time state (the filename timestamp bug).
 - Consistent handling of `-Infinity` and `NaN`.
+- Separator auto-detection (`separator: 'auto'`) skips leading blank and comment
+  lines, so a metadata or comment line above the header no longer forces the
+  delimiter to a comma. Applies to both the synchronous and streaming paths.
+- An invalid `Date` cell throws a located `CsvPipeError` naming the row and
+  column, instead of a bare `RangeError`.
+- The streaming parser releases its source on early exit (a `break` or
+  `maxRows`), cancelling a Web `ReadableStream` and closing a Node file handle.
+- `strict` mode reports the 1-based source row, where the header is row 1.
 
 ### Tooling
 
@@ -94,5 +81,8 @@ A complete rewrite into a fast, deterministic, RFC 4180-compliant CSV encoder an
   loop, making it the fastest of the benchmarked encoders on every dataset.
 - CI verifies the published package with publint and checks type resolution
   across module modes with are-the-types-wrong.
-- Property-based round-trip tests (fast-check), a bundle-size budget
-  (size-limit), and live coverage and bundle-size badges.
+- A conformance layer in CI: a curated edge-case corpus, the external
+  csv-spectrum suite, and fast-check property tests (never throws, round-trips,
+  chunk-invariant), plus a bundle-size budget (size-limit) and live coverage and
+  bundle-size badges.
+- Published to npm over OIDC trusted publishing, with provenance.
