@@ -12,6 +12,15 @@ whole dataset (higher is better). On the large dataset that is roughly 7M rows/s
 for encoding and 10M rows/s for parsing. These are indicative numbers from one dev
 machine; they vary by hardware. Reproduce them with `npm run bench`.
 
+## How it is measured
+
+Each comparison uses the current major of every library (papaparse 5, csv-parse
+7, csv-stringify 6, fast-csv 5) on the same data, with headers on and no type
+coercion, so the libraries do equivalent work. fast-csv is measured through its
+streaming API, since it has no synchronous one. The harness is
+[tinybench](https://github.com/tinylibs/tinybench) through Vitest, with warmup
+and repeated samples.
+
 ## Encoding
 
 Objects to CSV text, against papaparse, csv-stringify, and fast-csv.

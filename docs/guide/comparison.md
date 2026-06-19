@@ -1,5 +1,5 @@
 ---
-description: How csv-pipe compares with papaparse, csv-stringify, csv-parse, and fast-csv.
+description: csv-pipe versus papaparse, csv-parse, csv-stringify, and fast-csv. A typed, zero-dependency, faster CSV alternative for TypeScript on Node, browsers, Deno, Bun, and edge.
 ---
 
 # Comparison
@@ -36,6 +36,34 @@ and may change between versions; check the current docs of each.
 
 - **You need a wider data toolkit** (parsing pipelines, transforms, CSV plus
   other formats). fast-csv and the `csv` package cover more ground.
+
+## FAQ
+
+**What is a good alternative to papaparse?**
+
+csv-pipe. It encodes and parses like papaparse, adds column names checked against
+your type at compile time, runs on Deno, Bun, and edge as well as Node and the
+browser, and parses several times faster. Migration is usually a one-line change.
+
+**What is the fastest CSV parser for Node and TypeScript?**
+
+In the [benchmarks](./benchmarks) here, csv-pipe parses several times faster than
+papaparse, csv-parse, and fast-csv across every dataset tested.
+
+**Is there a typed CSV parser for TypeScript?**
+
+Yes. csv-pipe is written in TypeScript with no `any` in the public surface, and
+column names are checked against your record type, so a typo fails at compile
+time.
+
+**Which CSV library works on Deno, Bun, and edge runtimes?**
+
+csv-pipe. The core imports no `fs` and no DOM and returns a Web `ReadableStream`,
+so one import runs on Node, browsers, Deno, Bun, and edge.
+
+**Does csv-pipe have runtime dependencies?**
+
+No. It ships zero runtime dependencies, at about 2 kB per direction.
 
 ## Migrating
 
