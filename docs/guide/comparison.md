@@ -13,15 +13,16 @@ the attributes that differ; throughput is covered on the
 | --------------------------------- | ------------------------------ | -------------- | ------------------------- | -------------- |
 | Direction                         | encode + parse                 | encode + parse | encode + parse            | encode + parse |
 | Columns checked against your type | Yes                            | No             | No                        | No             |
-| Runtimes                          | Node, browser, Deno, Bun, edge | Node, browser  | Node                      | Node           |
+| Runtimes                          | Node, browser, Deno, Bun, edge | Node, browser  | Node, browser             | Node           |
 | Web `ReadableStream`              | Yes                            | No             | No                        | No             |
-| Built-in formula-injection guard  | Yes                            | No             | No                        | No             |
-| Runtime dependencies              | None                           | None           | A few                     | A few          |
+| Built-in formula-injection guard  | Yes                            | Yes            | Yes                       | No             |
+| Runtime dependencies              | None                           | None           | None                      | A few          |
 | Fastest at parsing (wide margin)  | Yes                            | No             | No                        | No             |
 | Fastest or on par at encoding     | Yes                            | No             | No                        | No             |
 
-Attributes other than throughput reflect the documented behavior of each library
-and may change between versions; check the current docs of each.
+Attributes other than throughput reflect the documented behavior and current
+published versions of each library (papaparse 5, csv-parse 7, csv-stringify 6,
+fast-csv 5), and may change between versions; check the current docs of each.
 
 ## When to choose csv-pipe
 
