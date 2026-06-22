@@ -14,7 +14,7 @@ the attributes that differ; throughput is covered on the
 | Direction                         | encode + parse                 | encode + parse | encode + parse            | encode + parse |
 | Columns checked against your type | Yes                            | No             | No                        | No             |
 | Runtimes                          | Node, browser, Deno, Bun, edge | Node, browser  | Node, browser             | Node           |
-| Web `ReadableStream`              | Yes                            | No             | No                        | No             |
+| Web `ReadableStream`              | Yes                            | No             | Partial                   | No             |
 | Built-in formula-injection guard  | Yes                            | Yes            | Yes                       | No             |
 | Runtime dependencies              | None                           | None           | None                      | A few          |
 | Fastest at parsing (wide margin)  | Yes                            | No             | No                        | No             |
@@ -23,6 +23,9 @@ the attributes that differ; throughput is covered on the
 Attributes other than throughput reflect the documented behavior and current
 published versions of each library (papaparse 5, csv-parse 7, csv-stringify 6,
 fast-csv 5), and may change between versions; check the current docs of each.
+csv-pipe returns a Web `ReadableStream` from the encoder, which suits an HTTP or
+edge response body. csv-parse 7 has a Web Streams parser (`csv-parse/stream`),
+while csv-stringify uses Node streams, so that column is mixed.
 
 ## When to choose csv-pipe
 
