@@ -18,7 +18,7 @@ jobs:
     name: Track throughput
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # github-action-benchmark fetches gh-pages and fails if it does not exist.
       # Create an empty one first (in a temp dir, leaving the checkout untouched)
