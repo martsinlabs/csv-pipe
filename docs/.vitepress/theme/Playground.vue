@@ -398,9 +398,16 @@ onMounted(() => {
   cursor: default;
 }
 .pg-action {
-  border-color: var(--vp-c-brand-1);
-  background: var(--vp-c-brand-1);
+  border-color: var(--vp-button-brand-bg);
+  background: var(--vp-button-brand-bg);
   color: #fff;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+.pg-action:hover {
+  border-color: var(--vp-button-brand-hover-bg);
+  background: var(--vp-button-brand-hover-bg);
 }
 .pg-presets {
   display: flex;
