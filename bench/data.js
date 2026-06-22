@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781900761835,
+  "lastUpdate": 1782152668306,
   "repoUrl": "https://github.com/martsinlabs/csv-pipe",
   "entries": {
     "csv-pipe throughput": [
@@ -383,6 +383,70 @@ window.BENCHMARK_DATA = {
           {
             "name": "parse: quote-heavy (5k x 3)",
             "value": 613,
+            "unit": "ops/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "myroslav@martsinlabs.com",
+            "name": "Myroslav Martsin",
+            "username": "myromartsin"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b0b18a189dab058b87de45735ed8df530b471a1e",
+          "message": "Merge pull request #39 from martsinlabs/v2\n\nV2",
+          "timestamp": "2026-06-22T13:23:16-05:00",
+          "tree_id": "b9f4bbdeba05f8df1a6201d1ec25766a89cb9085",
+          "url": "https://github.com/martsinlabs/csv-pipe/commit/b0b18a189dab058b87de45735ed8df530b471a1e"
+        },
+        "date": 1782152667788,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "encode: small (1k x 3)",
+            "value": 4353,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "encode: wide (1k x 20)",
+            "value": 483,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "encode: large (50k x 3)",
+            "value": 54,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "encode: quote-heavy (5k x 3)",
+            "value": 328,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: small (1k x 3)",
+            "value": 5178,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: wide (1k x 20)",
+            "value": 527,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: large (50k x 3)",
+            "value": 46,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: quote-heavy (5k x 3)",
+            "value": 644,
             "unit": "ops/sec"
           }
         ]
