@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782163925771,
+  "lastUpdate": 1782322550969,
   "repoUrl": "https://github.com/martsinlabs/csv-pipe",
   "entries": {
     "csv-pipe throughput": [
@@ -511,6 +511,70 @@ window.BENCHMARK_DATA = {
           {
             "name": "parse: quote-heavy (5k x 3)",
             "value": 638,
+            "unit": "ops/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "myroslav@martsinlabs.com",
+            "name": "Myroslav Martsin",
+            "username": "myromartsin"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bd581273f932c18b226780d15b1c4393cffe60dc",
+          "message": "Merge pull request #41 from martsinlabs/v2\n\ndocs: add a typed-columns demo to the README",
+          "timestamp": "2026-06-24T12:35:08-05:00",
+          "tree_id": "29abd69a901e7815af72ec80146b9a5dcddacba7",
+          "url": "https://github.com/martsinlabs/csv-pipe/commit/bd581273f932c18b226780d15b1c4393cffe60dc"
+        },
+        "date": 1782322549198,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "encode: small (1k x 3)",
+            "value": 4149,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "encode: wide (1k x 20)",
+            "value": 455,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "encode: large (50k x 3)",
+            "value": 59,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "encode: quote-heavy (5k x 3)",
+            "value": 321,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: small (1k x 3)",
+            "value": 5242,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: wide (1k x 20)",
+            "value": 529,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: large (50k x 3)",
+            "value": 47,
+            "unit": "ops/sec"
+          },
+          {
+            "name": "parse: quote-heavy (5k x 3)",
+            "value": 644,
             "unit": "ops/sec"
           }
         ]
