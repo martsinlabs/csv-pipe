@@ -11,6 +11,7 @@ type-checked in CI, so they stay in sync with the library.
 | [streaming-node.ts](streaming-node.ts) | Stream to a file with flat memory (`writeCsv`, Readable). |
 | [streaming-web.ts](streaming-web.ts)   | Serve a CSV as an HTTP response (`toReadableStream`).     |
 | [read-file.ts](read-file.ts)           | Read and parse a file as a stream (`readCsv`).            |
+| [parse-remote.ts](parse-remote.ts)     | Parse a CSV fetched over HTTP (fetch `response.body`).    |
 | [security.ts](security.ts)             | Guard against spreadsheet formula injection.              |
 
 Run one with any TypeScript runner, for example:

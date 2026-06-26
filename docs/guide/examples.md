@@ -161,4 +161,5 @@ Run any of these with a TypeScript runner, for example `npx tsx examples/basic.t
 | [streaming-node.ts](https://github.com/martsinlabs/csv-pipe/blob/master/examples/streaming-node.ts) | Stream to a file with flat memory.            |
 | [streaming-web.ts](https://github.com/martsinlabs/csv-pipe/blob/master/examples/streaming-web.ts)   | Serve a CSV as an HTTP response.              |
 | [read-file.ts](https://github.com/martsinlabs/csv-pipe/blob/master/examples/read-file.ts)           | Parse a file as a stream of typed records.    |
+| [parse-remote.ts](https://github.com/martsinlabs/csv-pipe/blob/master/examples/parse-remote.ts)     | Parse a CSV fetched over HTTP with `fetch`.   |
 | [security.ts](https://github.com/martsinlabs/csv-pipe/blob/master/examples/security.ts)             | Guard against formula injection.              |
