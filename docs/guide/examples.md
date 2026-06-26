@@ -138,6 +138,29 @@ stringify(exportRows, { sanitizeFormulas: true });
 // '@SUM(A1:A9),leading at
 ```
 
+## Change the delimiter
+
+`parse` reads the input and `stringify` writes it with a different separator.
+Use `separator: 'auto'` when the input format is unknown. See
+[Parsing options](./parsing-options) and [Stringify options](./options).
+
+```ts
+const csv = 'name,email,age\nAlex Johnson,alex@example.com,29';
+
+const rows = parse(csv);
+stringify(rows, { separator: ';' });
+// name;email;age
+// Alex Johnson;alex@example.com;29
+```
+
+For an input with an unknown separator, let the parser detect it:
+
+```ts
+stringify(parse(csv, { separator: 'auto' }), { separator: ';' });
+// name;email;age
+// Alex Johnson;alex@example.com;29
+```
+
 ## Download in the browser
 
 `downloadCsv` encodes the data and triggers a download. See
