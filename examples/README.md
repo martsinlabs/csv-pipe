@@ -12,6 +12,7 @@ type-checked in CI, so they stay in sync with the library.
 | [streaming-web.ts](streaming-web.ts)   | Serve a CSV as an HTTP response (`toReadableStream`).     |
 | [read-file.ts](read-file.ts)           | Read and parse a file as a stream (`readCsv`).            |
 | [security.ts](security.ts)             | Guard against spreadsheet formula injection.              |
+| [bun.ts](bun.ts)                       | Round-trip a dataset with `stringify` then `parse` (Bun). |
 
 Run one with any TypeScript runner, for example:
 
