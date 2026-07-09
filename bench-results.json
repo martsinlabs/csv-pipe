@@ -2,41 +2,41 @@
   {
     "name": "encode: small (1k x 3)",
     "unit": "ops/sec",
-    "value": 3921
+    "value": 4433
   },
   {
     "name": "encode: wide (1k x 20)",
     "unit": "ops/sec",
-    "value": 486
+    "value": 479
   },
   {
     "name": "encode: large (50k x 3)",
     "unit": "ops/sec",
-    "value": 53
+    "value": 54
   },
   {
     "name": "encode: quote-heavy (5k x 3)",
     "unit": "ops/sec",
-    "value": 367
+    "value": 372
   },
   {
     "name": "parse: small (1k x 3)",
     "unit": "ops/sec",
-    "value": 4739
+    "value": 4782
   },
   {
     "name": "parse: wide (1k x 20)",
     "unit": "ops/sec",
-    "value": 521
+    "value": 542
   },
   {
     "name": "parse: large (50k x 3)",
     "unit": "ops/sec",
-    "value": 44
+    "value": 47
   },
   {
     "name": "parse: quote-heavy (5k x 3)",
     "unit": "ops/sec",
-    "value": 613
+    "value": 664
   }
 ]
