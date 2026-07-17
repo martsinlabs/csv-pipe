@@ -5,6 +5,7 @@
     "baseUrl": ".",
     "paths": {
       "csv-pipe": ["./src/index.ts"],
+      "npm:csv-pipe": ["./src/index.ts"],
       "csv-pipe/node": ["./src/platform/node.ts"],
       "csv-pipe/browser": ["./src/platform/browser.ts"]
     }
