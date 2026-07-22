@@ -47,6 +47,37 @@ function handler(users: Iterable<User>): Response {
 }
 ```
 
+## Stream a download from an edge route
+
+The same body becomes a file download when the route adds a `content-disposition`
+header. The handler takes a Web `Request` and returns a `Response`, so it runs
+unchanged on any fetch-style runtime: Vercel and Cloudflare edge, Deno, Bun, or
+Node. The rows stream out as they arrive, so memory stays flat no matter how many
+`loadUsers` yields.
+
+```ts
+import { createCsvEncoder, toReadableStream } from 'csv-pipe';
+
+type User = { name: string; email: string; age: number };
+
+async function* loadUsers(): AsyncIterable<User> {
+  // pull each page from a database or API and yield its rows
+  yield { name: 'Alex Johnson', email: 'alex@example.com', age: 29 };
+  yield { name: 'Carlos Herrera', email: 'carlos@example.com', age: 24 };
+}
+
+const encoder = createCsvEncoder<User>({ columns: ['name', 'email'] });
+
+export function GET(_request: Request): Response {
+  return new Response(toReadableStream(encoder.stream(loadUsers())), {
+    headers: {
+      'content-type': 'text/csv; charset=utf-8',
+      'content-disposition': 'attachment; filename="users.csv"'
+    }
+  });
+}
+```
+
 ## Stream from a database or paged API
 
 `stream` accepts an async iterable, so rows from a cursor or a paged endpoint
